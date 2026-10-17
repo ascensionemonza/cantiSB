@@ -1,5 +1,5 @@
 18 ottobre 2026 ore 10
-0;50;0;0;136TER;111BIS;0;15;0;0;0;0;233;223BIS;80BIS;0;8TER;A1;0;0;0;0;A12;0;0
+0;50;0;0;136TER;111;0;15;0;0;0;0;233;223BIS;80BIS;0;8TER;A1;0;0;0;0;A12;0;0
 R. Grande è il Signore<br>e degno di ogni lode.
 
 Cantate al Signore un canto nuovo,
