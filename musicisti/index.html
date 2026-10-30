@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body data-home-page="Home.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 18px;
+}
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 15px 20px;
+  width: 100%;
+  max-width: 500px;
+}
+.button-grid a {
+  display: block;
+  padding: 12px 6px;
+  text-align: center;
+  color: white;
+  background-color: #BF8F00;
+  text-decoration: none;
+  border-radius: 80px;
+  font-size: 16px;
+  font-weight: normal;
+}
+.button-grid a:hover {
+  background-color: #00b300;
+  color: white;
+}
+.tutti_i_canti {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px 20px;
+  width: 100%;
+  max-width: 500px;
+}
+.tutti_i_canti a {
+  display: block;
+  padding: 10px 6px;
+  text-align: center;
+  color: white;
+  background-color: #AA0000;
+  text-decoration: none;
+  border-radius: 112px;
+  font-size: 16px;
+  font-weight: normal;
+}
+.tutti_i_canti a:hover {
+  background-color: #00b300;
+  color: white;
+}
+.numeri {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 115px 20px;
+  width: 100%;
+  max-width: 500px;
+}
+.numeri a {
+  display: block;
+  padding: 12px 6px;
+  text-align: center;
+  color: white;
+  background-color: #AA0000;
+  text-decoration: none;
+  border-radius: 80px;
+  font-size: 16px;
+  font-weight: normal;
+}
+.numeri a:hover {
+  background-color: #00b300;
+  color: white;
+}
+
+.a-disabled {
+  color: #A0A0A0 !important;
+}
+
+#textbox {
+  width: 310px;
+  margin: 0 auto;
+  border: 0px solid #FFFFFF;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+#controlloTesto {
+  text-align: left !important;
+}
+</style>
+
+<meta charset="UTF-8">
+
+<center>
+  <span style="color:#BF8F00">
+    <h2>Chiesa San Biagio<br>Monza</h2>
+  </span>
+
+  <div id="data_e_ora"></div>
+  <div class="button-grid" id="programma"></div>
+  <div id="contenuto"></div>
+
+<script>
+
+// Carica config.txt SENZA controllo data
+fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
+  .then(response => response.text())
+  .then(text => {
+    const config = text.split(/\r?\n/);
+    caricaconst(config);
+  });
+
+function caricaconst(config) {
+  fetch("/cantiSB/costanti.txt")
+    .then(response => response.text())
+    .then(text => {
+      const costanti = text.split(/\r?\n/);
+      leggi_canti(costanti, config);
+    });
+}
+
+function leggi_canti(costanti, config) {
+  fetch("/cantiSB/numericanti.txt")
+    .then(response => response.text())
+    .then(text => {
+      const titolicanti = text.split(/\r?\n/);
+      leggi_aggiunte(costanti, config, titolicanti);
+    });
+}
+
+function leggi_aggiunte(costanti, config, titolicanti) {
+  fetch("/cantiSB/numeriaggiunte.txt")
+    .then(response => response.text())
+    .then(text => {
+      const titoliaggiunte = text.split(/\r?\n/);
+      crea_programma(costanti, config, titolicanti, titoliaggiunte);
+    });
+}
+
+function crea_programma(costanti, config, titolicanti, titoliaggiunte) {
+
+  document.getElementById("data_e_ora").innerHTML =
+    "<h3>Programma del<br>" + config[0] + "</h3>";
+
+  const canti_liturgia = config[1];
+  const liturgie = costanti[0].split(',');
+  let html = "";
+
+  const mioArray = canti_liturgia.split(';');
+
+  for (let i = 0; i < 24; i++) {
+
+    if (mioArray[i] != "0") {
+
+      if (mioArray[i].substring(0,3) == "149") mioArray[i] = "149";
+      if (mioArray[i].substring(0,3) == "163") mioArray[i] = "163";
+
+      if (mioArray[i].length < 4) {
+
+        if (mioArray[i].charAt(0) == "A") {
+          html += "<a href=\"liturgia.html?n=" + i + "\">" +
+                  liturgie[i] + ": " +
+                  titoliaggiunte[mioArray[i].substring(1) - 1] +
+                  " (" + mioArray[i] + ")</a>";
+        } else {
+          html += "<a href=\"liturgia.html?n=" + i + "\">" +
+                  liturgie[i] + ": " +
+                  titolicanti[mioArray[i] - 1] +
+                  " (" + mioArray[i] + ")</a>";
+        }
+      }
+      else
+      {
+        html += "<a href=\"liturgia.html?n=" + i + "\">" +
+                liturgie[i] + ": " +
+                " " + mioArray[i] + "</a>";
+      }
+    }
+  }
+
+  html += "<center><img src=/cantiSB/NextGen.png style=\"height:100px\"></center>";
+  document.getElementById("programma").innerHTML = html;
+}
+
+</script>
+<!--
+<span style="color:#AA0000">
+  <h2>Canti in ordine alfabetico</h2>
+</span>
+
+<div class="tutti_i_canti">
+  <a href="alfabetico/A.html">A</a>
+  <a href="alfabetico/B.html">B</a>
+  <a href="alfabetico/C.html">C</a>
+  <a href="alfabetico/D.html">D</a>
+  <a href="alfabetico/E.html">E</a>
+  <a href="alfabetico/F.html">F</a>
+  <a href="alfabetico/G.html">G</a>
+  <a href="alfabetico/H.html">H</a>
+  <a href="alfabetico/I.html">I</a>
+  <a href="alfabetico/J.html">J</a>
+  <a href="alfabetico/L.html">L</a>
+  <a href="alfabetico/M.html">M</a>
+  <a href="alfabetico/N.html">N</a>
+  <a href="alfabetico/O.html">O</a>
+  <a href="alfabetico/P.html">P</a>
+  <a href="alfabetico/Q.html">Q</a>
+  <a href="alfabetico/R.html">R</a>
+  <a href="alfabetico/S.html">S</a>
+  <a href="alfabetico/T.html">T</a>
+  <a href="alfabetico/U.html">U</a>
+  <a href="alfabetico/V.html">V</a>
+</div>
+-->
+<br>
+<div class="numeri"><a href="numeri.html">Canti in ordine numerico</a></div>
+<br>
+
+</center>
+
+<!-- RIMOSSO: controllo dimensione testo -->
+
+</body>
+</html>

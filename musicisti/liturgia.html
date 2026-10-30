@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body data-home-page="index.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
+
+<section class="u-clearfix u-palette-1-light-2 u-section-1" id="block-2">
+<div class="u-clearfix u-sheet u-sheet-1">
+<div class="u-clearfix u-custom-html u-expanded-width u-custom-html-1"></div>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+  }
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px 10px;
+    width: 100%;
+    max-width: 500px;
+  }
+  .button-grid a {
+    display: block;
+    padding: 12px 0;
+    text-align: center;
+    background-color: #BF8F00;
+    color: white;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+  }
+  .button-grid a:hover {
+    background-color: #00b300;
+    color: white;
+  }
+
+
+</style>
+
+<meta charset="UTF-8">
+
+<center>
+    <span style="color:#BF8F00"><b>
+            <div id="header"></div></b>
+    </span>
+</center>
+<div id="contenuto"></div>
+
+<center>
+<div id="footer" class="button-grid"></div>
+</center>
+
+
+<script>
+    fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
+    .then(response => response.text())
+    .then(text => {
+        const lines = text.split(/\r?\n/);
+        caricaconst(lines);
+    });
+
+    function crea_canto_lit(costanti, lines) {
+
+        const params = new URLSearchParams(window.location.search);
+        let n = params.get("n");
+
+        const liturgie = costanti[0].split(',');
+        const momento = n;
+        const parametroStringa = lines[1];
+
+        let mioArray = parametroStringa.split(';');
+        let prev_i = -1;
+        let i = 0;
+
+        if (mioArray[momento] != "") {
+
+            for (i = 0; i < 25; i++) {
+
+                if (mioArray[i] != 0) {
+
+                    if (mioArray[i].substring(0,3) == "149") mioArray[i] = "149";
+                    if (mioArray[i].substring(0,3) == "163") mioArray[i] = "163";
+
+    //                if (mioArray[i].charAt(3) == "") {
+
+                        if (i < momento) prev_i = i;
+                        if (i > momento) break;
+
+    //                }
+
+                }
+
+            }
+
+            // HEADER
+            const containerH = document.getElementById("header");
+
+            containerH.innerHTML = "";
+            containerH.insertAdjacentHTML("beforeend", liturgie[n].toUpperCase());
+
+            // CONTENUTO
+            fetch("elenco.json")
+
+                .then(r => r.json())
+
+                .then(elenco => {
+
+                    const chiave = codice(mioArray[momento]);
+
+                    let pdf = elenco[chiave];
+
+                    if (!pdf) {
+
+                        document.getElementById("contenuto").innerHTML =
+                            `<h2>Spartito non trovato (${chiave})</h2>`;
+
+                        return;
+
+                    }
+
+                    const container = document.getElementById("contenuto");
+
+                    const percorsoPulito = pdf
+                        .split("?")[0]
+                        .toLowerCase();
+
+                    if (
+                        percorsoPulito.endsWith(".jpg") ||
+                        percorsoPulito.endsWith(".jpeg") ||
+                        percorsoPulito.endsWith(".png") ||
+                        percorsoPulito.endsWith(".webp")
+                    ) {
+
+                        container.innerHTML =
+                            `<img src="${pdf}" style="max-width:100%;height:auto;">`;
+
+                    } else {
+
+                        container.innerHTML =
+                            `<iframe src="${pdf}" style="width:100%;height:89vh;border:none;"></iframe>`;
+
+                    }
+
+                });
+
+            // FOOTER
+            const containerF = document.getElementById("footer");
+
+            let mioFooter = "";
+
+            containerF.innerHTML = "";
+
+            if (prev_i == -1) {
+
+                mioFooter =
+                    `<a href="index.html">-</a>
+                    <a href="index.html">Indice</a>
+                    <a href="liturgia.html?n=${i}">${liturgie[i]}</a>`;
+
+            } else {
+
+                if (i == 25) {
+
+                    mioFooter =
+                        `<a href="liturgia.html?n=${prev_i}">${liturgie[prev_i]}</a>
+                        <a href="index.html">Indice</a>
+                        <a href="index.html">-</a>`;
+
+                } else {
+
+                    mioFooter =
+                        `<a href="liturgia.html?n=${prev_i}">${liturgie[prev_i]}</a>
+                        <a href="index.html">Indice</a>
+                        <a href="liturgia.html?n=${i}">${liturgie[i]}</a>`;
+
+                }
+
+            }
+
+            containerF.insertAdjacentHTML("beforeend", mioFooter);
+
+        }
+
+    }
+
+    function caricaconst(lines) {
+    fetch("/cantiSB/costanti.txt")
+    .then(response => response.text())
+    .then(text => {
+        const costanti = text.split(/\r?\n/);
+        crea_canto_lit(costanti, lines);
+    });
+    }
+
+    function codice(numero) {
+
+        if (!numero) return null;
+
+        numero = numero.toUpperCase();
+
+        let iniziale = numero.charAt(0);
+        if (/^[A-Z]/.test(iniziale)) {
+            return numero.charAt(0) + numero.substring(1).padStart(2,"0");
+        }
+
+        return numero.padStart(3,"0");
+    }
+
+</script>
+
+
+</body>
+</html>

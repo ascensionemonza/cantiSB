@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <body data-home-page="Home.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
+    <section class="u-clearfix u-palette-1-light-2 u-section-1" id="block-2">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="u-clearfix u-custom-html u-expanded-width u-custom-html-1"></div>
+        <style> body {
+          font-family: Arial, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          font-size: 18px;
+        }
+
+        .tutti_i_canti {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 15px 20px;
+          width: 100%;
+          max-width: 500px;
+        }
+        .tutti_i_canti a {
+          display: block;
+          padding: 10px 6px;
+          text-align: center;
+          color: white;
+          background-color: #AA0000;
+          text-decoration: none;
+          border-radius: 112px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+        .tutti_i_canti a:hover {
+          background-color: #00b300;
+          color: white;
+        }
+        .numeri {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 115px 20px;
+          width: 100%;
+          max-width: 500px;
+        }
+        .numeri a {
+          display: block;
+          padding: 12px 6px;
+          text-align: center;
+          color: white;
+          background-color: #AA0000;
+          text-decoration: none;
+          border-radius: 80px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+        .numeri a:hover {
+          background-color: #00b300;
+          color: white;
+        }
+        .button-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px 20px;
+          width: 100%;
+          max-width: 500px;
+        }
+        .button-grid a {
+          display: block;
+          padding: 12px 6px;
+          text-align: center;
+          color: white;
+          background-color: #BF8F00;
+          text-decoration: none;
+          border-radius: 80px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+        .button-grid a:hover {
+          background-color: #00b300;
+          color: white;
+        }
+        </style>
+        </style>
+<meta charset="UTF-8">
+<center>
+  <span style="color:#BF8F00">
+  <h2>Chiesa San Biagio<br>Monza</h2></span>
+</center>
+  <div id="programma"></div>
+
+<script>
+
+function codice(numero) {
+
+    if (!numero) return null;
+
+    numero = numero.toUpperCase();
+
+    let iniziale = numero.charAt(0);
+    if (/^[A-Z]/.test(iniziale)) {
+        return numero.charAt(0) + numero.substring(1).padStart(2,"0");
+    }
+
+    return numero.padStart(3,"0");
+}
+
+async function carica(file, div, liturgia) {
+
+    var testocanto = "";
+    const risposta = await fetch(file);
+    if (risposta.status == 404) testocanto += "File " + file + " non trovato<br><br>"
+    else {
+      testocanto = await risposta.text();
+    }
+    if (liturgia.length > 0)
+      div.innerHTML += "<hr><h2><span style=\"color:#BF8F00\"><center>" + liturgia + "</center></span></h2><hr>";
+    div.innerHTML += testocanto;
+}
+
+async function crea_programma(costanti, config) {
+  if (config[0] != "") {
+    const canti_liturgia = config[1];
+    const liturgie = costanti[0].split(',');
+    const div = document.getElementById("programma");
+    var filecanto = "";
+    var testocanto = "";
+
+    div.innerHTML = "<h3><b><center>Programma del " + config[0] + "</center></b></h3>";
+
+    mioArray = canti_liturgia.split(';')
+    for (let i=0 ; i<24 ; i++) {
+      if ( i== 6 ) { // salmo
+        let j = 2;
+        let ritornello = "<br><b>" + config[j].substring(3) + "</b><br>";
+        if (config[j].length > 0) {
+          div.innerHTML += "<hr><h2><span style=\"color:#BF8F00\"><center>" + liturgie[i] + "</center></span></h2><hr>";
+          div.innerHTML += ritornello;
+          j += 1;
+        }
+        while (j < config.length) {
+          if ( config[j].substring(config[j].length - 4) == ". R.") 
+            div.innerHTML += config[j].substring(0, config[j].length - 3) + "<br>" + ritornello;  
+          else  
+            div.innerHTML += config[j] + "<br>";
+          j += 1;
+        }
+        if ( j > 2) div.innerHTML += "<br>";
+      }
+      if ( i == 14 ) {
+          div.innerHTML += "<hr><h2><span style=\"color:#BF8F00\"><center>Dopo la consacrazione</center></span></h2><hr>";
+          div.innerHTML += "<br><i>Mistero della fede.</i><br><br><b>Annunciamo la tua morte, Signore,<br>proclamiamo la tua resurrezione<br>nell'attesa della tua venuta.</b><br><br>";
+      }
+      if (mioArray[i] != "0") {
+        if (mioArray[i].substring(0,4) == "163.") {
+          filecanto = "canti/" + mioArray[i].substring(0,3) + ".0.html";
+          await carica(filecanto, div, liturgie[i]);
+          for (let j = 4 ; j < mioArray[i].length ; j++) {
+            filecanto = "canti/" + mioArray[i].substring(0,3) + "." + mioArray[i].charAt(j) + ".html";
+            await carica(filecanto, div, "");
+          } 
+        } else {
+          filecanto = "canti/" + codice(mioArray[i]) + ".html";
+          await carica(filecanto, div, liturgie[i])
+        }
+      }
+    }
+  }
+}
+
+function caricaconfig(costanti) {
+fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
+  .then(response => response.text())
+  .then(text => {
+    const config = text.split(/\r?\n/);
+    crea_programma(costanti, config);
+  })
+}
+
+function caricaconst() {
+  fetch("../costanti.txt")
+  .then(response => response.text())
+  .then(text => {
+    const costanti = text.split(/\r?\n/);
+    caricaconfig(costanti);
+  })
+}
+
+caricaconst();
+</script>
+         
+          
+  <div class="button-grid">
+    <a href="index.html">Indice</a>
+    <a href="numeri.html">Canti in ordine numerico</a>
+  </div>
+
+
+        </div>
+      </div>
+    </section>
+    </body>
+</html>
