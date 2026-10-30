@@ -111,6 +111,21 @@
 
                     let pdf = elenco[chiave];
 
+
+                    const usaAccordi = localStorage.getItem("accordi") === "true";
+
+                    if (usaAccordi) {
+
+                        const chiaveAccordi = chiave + "A";
+
+                        if (elenco[chiaveAccordi]) {
+
+                            pdf = elenco[chiaveAccordi];
+
+                        }
+
+                    }
+
                     if (!pdf) {
 
                         document.getElementById("contenuto").innerHTML =
