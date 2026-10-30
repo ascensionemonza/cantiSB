@@ -134,15 +134,19 @@ if (n) {
 
         .then(elenco => {
 
-            let pdf = elenco[chiave];
+        let pdf = elenco[chiave];
 
-            /*
-            FUTURO
+        if (usaAccordi) {
 
-            if (usaAccordi && elenco[chiave + "a"]) {
-                pdf = elenco[chiave + "a"];
+            const chiaveAccordi = chiave + "A";
+
+            if (elenco[chiaveAccordi]) {
+
+                pdf = elenco[chiaveAccordi];
+
             }
-            */
+
+        }
 
             if (!pdf) {
 

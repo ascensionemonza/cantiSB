@@ -54,6 +54,30 @@ body {
   background-color: #00b300;
   color: white;
 }
+.asbutton {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 115px 20px;
+  width: 100%;
+  max-width: 500px;
+}
+.asbutton a {
+  display: block;
+  padding: 12px 6px;
+  text-align: center;
+  color: #AA0000;
+  background-color: white;
+  text-decoration: none;
+  border-radius: 80px;
+  font-size: 16px;
+  border: 2px solid #AA0000;
+  font-weight: normal;
+}
+.asbutton a:hover {
+  background-color: #AA0000;
+  color: white;
+}
+
 .numeri {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -102,10 +126,29 @@ body {
   </span>
 
   <div id="data_e_ora"></div>
+
+<div class="asbutton"><a href="#" id="toggleAccordi">Spartiti</a></div>
+<br>
   <div class="button-grid" id="programma"></div>
+
+
+
   <div id="contenuto"></div>
 
 <script>
+
+document.getElementById("toggleAccordi").addEventListener("click", function(e) {
+
+    e.preventDefault();
+
+    const accordi = localStorage.getItem("accordi") === "true";
+
+    localStorage.setItem("accordi", !accordi);
+
+    aggiornaPulsanteAccordi();
+});
+
+aggiornaPulsanteAccordi();
 
 // Carica config.txt SENZA controllo data
 fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
@@ -114,6 +157,16 @@ fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
     const config = text.split(/\r?\n/);
     caricaconst(config);
   });
+
+function aggiornaPulsanteAccordi() {
+
+    const accordi = localStorage.getItem("accordi") === "true";
+
+    document.getElementById("toggleAccordi").textContent =
+        accordi ? "Accordi" : "Spartiti";
+}
+
+
 
 function caricaconst(config) {
   fetch("/cantiSB/costanti.txt")
