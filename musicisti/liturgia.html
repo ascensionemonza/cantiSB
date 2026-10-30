@@ -138,9 +138,11 @@
 
                     } else {
 
-                        container.innerHTML =
-                            `<iframe src="${pdf}" style="width:100%;height:89vh;border:none;"></iframe>`;
-
+container.innerHTML =
+    `<iframe
+        src="https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(location.origin + '/' + pdf)}"
+        style="width:100%;height:89vh;border:none;">
+     </iframe>`;
                     }
 
                 });
