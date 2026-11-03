@@ -109,7 +109,7 @@ fetch("../titoli.json")
 
 
         const canti = data.canti
-            .filter(c => c.id.trim().length === 3)
+//            .filter(c => c.id.trim().length === 3)
             .sort((a, b) =>
                 chiaveOrdinamento(a.titolo)
                     .localeCompare(
