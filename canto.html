@@ -1,54 +1,56 @@
-
 <!DOCTYPE html>
+<html lang="it">
 
 <head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script>
 
-    let size = parseInt(localStorage.getItem("dimTesto")) || 16;
+let size = parseInt(localStorage.getItem("dimTesto")) || 16;
 
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-        // Applica al contenitore
-        const contenuto = document.getElementById("contenuto");
-        if (contenuto) {
-            contenuto.style.fontSize = size + "px";
+    const contenuto = document.getElementById("contenuto");
 
-            // Applica anche a TUTTI gli elementi dentro
-            contenuto.querySelectorAll("*").forEach(el => {
-                el.style.fontSize = size + "px";
-            });
-        }
+    if (contenuto) {
+        contenuto.style.fontSize = size + "px";
+    }
 
-        // Applica al testo principale
-        const testo = document.getElementById("testoDimensione");
-        if (testo) {
-            testo.style.fontSize = size + "px";
-        }
-    });
+    const testo = document.getElementById("testoDimensione");
+
+    if (testo) {
+        testo.style.fontSize = size + "px";
+    }
+});
+
 </script>
 
-</head>
+<style>
 
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <body data-home-page="index.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
-
-
-    <style> body {
+body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0px;
-  }
-  .button-grid {
+    padding: 0;
+    margin: 0;
+}
+
+#contenuto {
+    font-size: 16px;
+}
+
+.button-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px 10px;
     width: 100%;
-    max-width: 500px;
-  }
-  .button-grid a {
+    max-width: 380px;
+}
+
+.button-grid a {
     display: block;
     padding: 12px 0;
     text-align: center;
@@ -58,18 +60,40 @@
     border-radius: 80px;
     font-size: 16px;
     font-weight: normal;
-  }
-  .button-grid a:hover {
+}
+
+.button-grid a:hover {
     background-color: #00b300;
     color: white;
-  } </style>
-<meta charset="UTF-8">
+}
+
+#contenuto {
+    font-size: 16px;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+#contenuto h1,
+#contenuto h2,
+#contenuto h3 {
+    text-align: center;
+}
+
+</style>
+
+</head>
+
 <body>
 
 <div id="contenuto"></div>
 
 <script>
+
 const params = new URLSearchParams(window.location.search);
+
 let n = params.get("n");
 
 if (n) {
@@ -78,34 +102,53 @@ if (n) {
 
     let file;
 
-    // Se inizia con una lettera (es. A1, B7...)
     if (/^[A-Z]/.test(n)) {
+
         const lettera = n.charAt(0);
         const numero = n.substring(1).padStart(2, "0");
+
         file = lettera + numero;
     }
-    // Solo numeri
     else {
+
         file = n.padStart(3, "0");
     }
 
-    file = "canti\\" + file + ".html";
-    fetch (file)
-      .then(r => r.text())
-      .then(html => {
-        document.getElementById("contenuto").innerHTML = html;
-      });
-} else {
-    document.body.innerHTML = "<h2>Nessun parametro ricevuto.</h2>";
+    file = "canti/" + file + ".html";
+
+    fetch(file)
+        .then(r => {
+            if (!r.ok) {
+                throw new Error("File non trovato");
+            }
+            return r.text();
+        })
+        .then(html => {
+            document.getElementById("contenuto").innerHTML = html;
+        })
+        .catch(() => {
+            document.getElementById("contenuto").innerHTML =
+                "<h2>Canto non trovato</h2>";
+        });
+
 }
+else {
+
+    document.getElementById("contenuto").innerHTML =
+        "<h2>Nessun parametro ricevuto.</h2>";
+}
+
 </script>
 
+<br>
+
 <div class="button-grid">
-  <a href="javascript:history.back()";>Indietro</a>
-  <a href="index.html">Indice</a>
-  <a href="numeri.html">Indice numerico</a>
+    <a href="javascript:history.back()">Indietro</a>
+    <a href="index.html">Indice</a>
+    <a href="numeri.html">Indice numerico</a>
 </div>
+
 <br><br>
 
-
+</body>
 </html>

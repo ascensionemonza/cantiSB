@@ -1,20 +1,21 @@
 
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <body data-home-page="Home.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
+  <body>
         <style> body {
           font-family: Arial, sans-serif;
           display: flex;
           flex-direction: column;
           align-items: center;
           font-size: 18px;
+          text-align: center;
         }
         .button-grid {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
           gap: 15px 20px;
           width: 100%;
-          max-width: 500px;
+          max-width: 320px;
         }
         .button-grid a {
           display: block;
@@ -36,7 +37,7 @@
           grid-template-columns: repeat(5, 1fr);
           gap: 15px 20px;
           width: 100%;
-          max-width: 500px;
+          max-width: 320px;
         }
         .tutti_i_canti a {
           display: block;
@@ -58,7 +59,7 @@
           grid-template-columns: repeat(1, 1fr);
           gap: 115px 20px;
           width: 100%;
-          max-width: 500px;
+          max-width: 320px;
         }
         .numeri a {
           display: block;
@@ -95,9 +96,10 @@
 
         </style>
 <meta charset="UTF-8">
-<center>
-  <span style="color:#BF8F00">
-  <h2>Chiesa San Biagio<br>Monza</h2></span>
+  <h2 style="color:#BF8F00">
+  Chiesa San Biagio<br>
+  Monza
+  </h2>
   <div id="data_e_ora"></div>
   <div class="button-grid" id="programma"></div>
   <div id="contenuto"></div>
@@ -108,48 +110,39 @@ fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
   .then(response => response.text())
   .then(text => {
     const config = text.split(/\r?\n/);
+
     const cfg = parseConfigRiga1(config[0]);
+
     if (isValida(cfg.giorno, cfg.mese, cfg.anno, cfg.ora, cfg.minuti)) {
-        // OK → procedo
-        caricaconst(config);
+      crea_programma(config);
     }
-  })
+  });
 
-function confrontagiorno (config)
+function parseConfigRiga1(riga)
 {
-    const dati = config[0].split(" ");
-
-    const giorno = dati[0];          // "23"
-    const mese = dati[1];            // "agosto"
-    const anno = dati[2];            // "2026"
-    const oraMinuti = dati[4];       // "10" oppure "10:45"
-    const oggi = new Date();
-
-    let ora = "10";
-    let minuti = "00";
-
-    if (oraMinuti.includes(":")) {
-        const [h, m] = oraMinuti.split(":");
-        ora = h;
-        minuti = m;
-    } else {
-        ora = oraMinuti;
-        minuti = "00";
-    }
-  }
-
-function parseConfigRiga1(riga) 
-{
-
     const parti = riga.toLowerCase().split(" ");
 
     const giorno = parseInt(parti[0]);
-    const mesi = {"gennaio": 0, "febbraio": 1, "marzo": 2, "aprile": 3, "maggio": 4, "giugno": 5,
-                  "luglio": 6, "agosto": 7, "settembre": 8, "ottobre": 9, "novembre": 10, "dicembre": 11};
+
+    const mesi = {
+        "gennaio":0,
+        "febbraio":1,
+        "marzo":2,
+        "aprile":3,
+        "maggio":4,
+        "giugno":5,
+        "luglio":6,
+        "agosto":7,
+        "settembre":8,
+        "ottobre":9,
+        "novembre":10,
+        "dicembre":11
+    };
+
     const mese = mesi[parti[1]];
     const anno = parseInt(parti[2]);
 
-    const oraMinuti = parti[4]; // "10" oppure "10:45"
+    const oraMinuti = parti[4];
 
     let ora = 0;
     let minuti = 0;
@@ -166,95 +159,98 @@ function parseConfigRiga1(riga)
     return { giorno, mese, anno, ora, minuti };
 }
 
-// ------------------------------
-// FUNZIONE DI VALIDAZIONE
-// Restituisce true se:
-// - adesso < data costante
-// - adesso = data costante
-// - adesso > data costante ma entro le 03:00 del giorno successivo
-// ------------------------------
-function isValida(giorno, mese, anno, ora, minuti) 
+function isValida(giorno, mese, anno, ora, minuti)
 {
+    const dataCostante = new Date(
+        anno,
+        mese,
+        giorno,
+        ora,
+        minuti
+    );
 
-    const dataCostante = new Date(anno, mese, giorno, ora, minuti);
     const adesso = new Date();
 
-    const limite = new Date(anno, mese, giorno, ora, minuti);
-    limite.setDate(limite.getDate() + 1);  // giorno dopo
-    limite.setHours(3, 0, 0, 0);           // 03:00 precise
+    const limite = new Date(
+        anno,
+        mese,
+        giorno,
+        ora,
+        minuti
+    );
+
+    limite.setDate(limite.getDate() + 1);
+    limite.setHours(3, 0, 0, 0);
+
     if (adesso <= dataCostante) return true;
     if (adesso > dataCostante && adesso <= limite) return true;
 
     return false;
 }
 
-function caricaconst(config) 
+function normalizzaId(id)
 {
-  fetch("costanti.txt")
-  .then(response => response.text())
-  .then(text => {
-    const costanti = text.split(/\r?\n/);
-   leggi_canti(costanti, config);
-   })
+    id = id.trim().toUpperCase();
+
+    if (/^\d+$/.test(id))
+        return id.padStart(3,"0");
+
+    return id.replace(/\s+/g,"");
 }
 
-
-function caricaconst(config) 
+async function crea_programma(config)
 {
-    fetch("costanti.txt")
-        .then(response => response.text())
-        .then(text => {
-            const costanti = text.split(/\r?\n/);
-            leggi_canti(costanti, config);
-        });
-}
+    const liturgieData = await fetch("liturgie.json")
+        .then(r => r.json());
 
-function leggi_canti(costanti, config) 
+    const titoliData = await fetch("titoli.json")
+        .then(r => r.json());
+
+    document.getElementById("data_e_ora").innerHTML =
+        "<h3>Programma del<br>" + config[0] + "</h3>";
+
+    const liturgie = liturgieData.liturgie;
+
+    const mioArray = config[1].split(";");
+
+    let html = "";
+
+for (let i = 0; i < 24; i++)
 {
-  fetch("numericanti.txt")
-    .then(response => response.text())
-    .then(text => {
-      const titolicanti = text.split(/\r?\n/);
-      leggi_aggiunte(costanti, config, titolicanti);
-    })
+    const codice = mioArray[i].trim().toUpperCase();
+
+    if (codice === "0")
+        continue;
+
+    if (codice.length > 3)
+        continue;
+
+    const canto = titoliData.canti.find(
+        c => normalizzaId(c.id) === normalizzaId(codice)
+    );
+
+    if (!canto)
+        continue;
+
+    const prefisso =
+        liturgieData.liturgie[i] === "Gloria"
+            ? ""
+            : `${liturgieData.liturgie[i]}: `;
+
+    html += `
+        <a href="liturgia.html?n=${i}">
+            ${prefisso}${canto.titolo}
+            (${codice})
+        </a>
+    `;
 }
+    html +=
+        '<div style="text-align:center;">' +
+        '<img src="NextGen.png" style="height:100px">' +
+        '</div>';
 
-
-function leggi_aggiunte(costanti, config, titolicanti) 
-{
-  fetch("numeriaggiunte.txt")
-    .then(response => response.text())
-    .then(text => {
-      const titoliaggiunte = text.split(/\r?\n/);
-      crea_programma(costanti, config, titolicanti, titoliaggiunte);
-    })
+    document.getElementById("programma").innerHTML = html;
 }
-
-
-function crea_programma(costanti, config, titolicanti, titoliaggiunte) 
-{
-  document.getElementById("data_e_ora").innerHTML = "<h3>Programma del<br>" + config[0] + "</h3>";
-  const canti_liturgia = config[1];
-  const liturgie = costanti[0].split(',');
-  var html ="";
-
-  mioArray = canti_liturgia.split(';')
-  for (let i=0 ; i<24 ; i++) {
-      if (mioArray[i] != "0") {
-        if (mioArray[i].substring(0,3) == "149") mioArray[i] = "149";
-        if (mioArray[i].substring(0,3) == "163") mioArray[i] = "163";
-        if (mioArray[i].length < 4) {
-          if (mioArray[i].charAt(0) == "A")
-            html += "<a href=\"liturgia.html?n=" + i + "\">" + liturgie[i] + ": " + titoliaggiunte[mioArray[i].substring(1) - 1] + " (" + mioArray[i] + ")</a>"
-          else
-            html += "<a href=\"liturgia.html?n=" + i + "\">" + liturgie[i] + ": " + titolicanti[mioArray[i] - 1] + " (" + mioArray[i] + ")</a>"
-        }
-      }
-  }
-  html += "<center><img src=NextGen.png style=\"height:100px\"></center>";
-  document.getElementById("programma").innerHTML = html;
-}
-
 
 </script>
          
@@ -262,36 +258,45 @@ function crea_programma(costanti, config, titolicanti, titoliaggiunte)
 
           <span style="color:#AA0000" font-family="Arial, sans-serif" display="flex" flex-direction="column" align-items="center" font-size="18px">
           <h2>Canti in ordine alfabetico</h2></span>
-          <div class="tutti_i_canti">
-            <a href="alfabetico/A.html">A</a>
-            <a href="alfabetico/B.html">B</a>
-            <a href="alfabetico/C.html">C</a>
-            <a href="alfabetico/D.html">D</a>
-            <a href="alfabetico/E.html">E</a>
-            <a href="alfabetico/F.html">F</a>
-            <a href="alfabetico/G.html">G</a>
-            <a href="alfabetico/H.html">H</a>
-            <a href="alfabetico/I.html">I</a>
-            <a href="alfabetico/J.html">J</a>
-            <a href="alfabetico/L.html">L</a>
-            <a href="alfabetico/M.html">M</a>
-            <a href="alfabetico/N.html">N</a>
-            <a href="alfabetico/O.html">O</a>
-            <a href="alfabetico/P.html">P</a>
-            <a href="alfabetico/Q.html">Q</a>
-            <a href="alfabetico/R.html">R</a>
-            <a href="alfabetico/S.html">S</a>
-            <a href="alfabetico/T.html">T</a>
-            <a href="alfabetico/U.html">U</a>
-            <a href="alfabetico/V.html">V</a>
 
-          </div>
+
+<div class="tutti_i_canti" id="tutti_i_canti"></div>
+
+<script>
+
+function iniziale(titolo) {
+    return titolo
+        .trim()
+        .charAt(0)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase();
+}
+
+fetch("titoli.json")
+    .then(response => response.json())
+    .then(data => {
+
+        const canti = data.canti.filter(
+            c => c.id.trim().length === 3
+        );
+
+        const lettere = [...new Set(
+            canti.map(c => iniziale(c.titolo))
+        )].sort((a, b) => a.localeCompare(b, "it"));
+
+        document.getElementById("tutti_i_canti").innerHTML =
+            lettere.map(lettera =>
+                `<a href="alfabetico.html?l=${encodeURIComponent(lettera)}">${lettera}</a>`
+            ).join("");
+    });
+
+</script>
 
           <br>
           <div class="numeri"><a href="numeri.html">Canti in ordine numerico</a></div>
           <br>
 
-</center>
 
 <!-- Controllo dimensione testo -->
 <div id="textbox">

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 18px;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px 20px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.button-grid a {
+  display: block;
+  padding: 12px 12px;
+  text-align: center;
+  color: white;
+  background-color: #AA0000;
+  text-decoration: none;
+  border-radius: 80px;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.button-grid a:hover {
+    background-color: #00b300;
+}
+
+.naviga {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.naviga a {
+    display: block;
+    padding: 10px 6px;
+    text-align: center;
+    color: white;
+    background-color: #BF8F00;
+    text-decoration: none;
+    border-radius: 112px;
+    font-size: 16px;
+}
+
+.naviga a:hover {
+    background-color: #00b300;
+}
+
+h2 {
+    text-align: center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>
+Chiesa San Biagio<br>
+Monza
+</h2>
+
+<h2 id="titolo"></h2>
+
+<div class="button-grid" id="elenco"></div>
+
+<br><br>
+
+<div class="naviga" id="navigazione"></div>
+
+<script>
+
+function iniziale(titolo) {
+    return titolo
+        .trim()
+        .charAt(0)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase();
+}
+
+const lettera =
+    (new URLSearchParams(location.search).get("l") || "A")
+    .toUpperCase();
+
+fetch("titoli.json")
+    .then(r => r.json())
+    .then(data => {
+
+
+        const canti = data.canti
+            .filter(c => c.id.trim().length === 3)
+            .sort((a, b) =>
+                chiaveOrdinamento(a.titolo)
+                    .localeCompare(
+                        chiaveOrdinamento(b.titolo),
+                        "it"
+                    )
+        );
+
+        const lettere = [...new Set(
+            canti.map(c => iniziale(c.titolo))
+        )];
+
+        const filtrati = canti.filter(
+            c => iniziale(c.titolo) === lettera
+        );
+
+        document.getElementById("titolo").innerHTML =
+            `Canti in ordine alfabetico<br><br>${lettera}`;
+
+        document.getElementById("elenco").innerHTML =
+            filtrati.map(c =>
+                `<a href="canto?n=${encodeURIComponent(c.id)}">
+                    ${c.id.replace(/^0+/, "")}. ${c.titolo}
+                </a>`
+            ).join("");
+
+        const posizione = lettere.indexOf(lettera);
+
+        const precedente =
+            posizione > 0
+                ? lettere[posizione - 1]
+                : "-";
+
+        const successiva =
+            posizione < lettere.length - 1
+                ? lettere[posizione + 1]
+                : "-";
+
+        document.getElementById("navigazione").innerHTML = `
+            <a href="${precedente === "-" ? "index.html" : `?l=${precedente}`}">${precedente}</a>
+            <a href="index.html">Indice</a>
+            <a href="${successiva === "-" ? "index.html" : `?l=${successiva}`}">${successiva}</a>
+        `;
+    });
+
+function chiaveOrdinamento(titolo)
+{
+    return titolo
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^A-Za-z0-9 ]/g, "")
+        .toUpperCase();
+}
+
+
+</script>
+
+</body>
+</html>
