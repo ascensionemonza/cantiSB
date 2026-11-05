@@ -129,18 +129,20 @@ function crea_programma(liturgieData)
 
         const liturgia = liturgie[i];
 
-        if (
-            !liturgia.canto 
-        )
+        if (!liturgia.canto)
             continue;
 
         const prefisso =
-             `${liturgia.momento}: `;
+            `${liturgia.momento}: `;
+
+        const numero =
+            liturgia.canto.trim().length <= 3
+                ? ` (${liturgia.canto})`
+                : "";
 
         html += `
             <a href="liturgia.html?n=${i}">
-                ${prefisso}${liturgia.titolo}
-                (${liturgia.canto})
+                ${prefisso}${liturgia.titolo}${numero}
             </a>
         `;
     }
