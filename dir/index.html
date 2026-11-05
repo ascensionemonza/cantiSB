@@ -1,24 +1,42 @@
-
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <body data-home-page="Home.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
-    <section class="u-clearfix u-palette-1-light-2 u-section-1" id="block-2">
-      <div class="u-clearfix u-sheet u-sheet-1">
-        <div class="u-clearfix u-custom-html u-expanded-width u-custom-html-1"></div>
+  <body>
         <style> body {
           font-family: Arial, sans-serif;
           display: flex;
           flex-direction: column;
           align-items: center;
           font-size: 18px;
+          text-align: center;
         }
-
+        .button-grid {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 15px 20px;
+          width: 100%;
+          max-width: 320px;
+        }
+        .button-grid a {
+          display: block;
+          padding: 12px 6px;
+          text-align: center;
+          color: white;
+          background-color: #BF8F00;
+          text-decoration: none;
+          border-radius: 80px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+        .button-grid a:hover {
+          background-color: #00b300;
+          color: white;
+        }
         .tutti_i_canti {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
           gap: 15px 20px;
           width: 100%;
-          max-width: 500px;
+          max-width: 320px;
         }
         .tutti_i_canti a {
           display: block;
@@ -40,7 +58,7 @@
           grid-template-columns: repeat(1, 1fr);
           gap: 115px 20px;
           width: 100%;
-          max-width: 500px;
+          max-width: 320px;
         }
         .numeri a {
           display: block;
@@ -57,12 +75,28 @@
           background-color: #00b300;
           color: white;
         }
+
+.a-disabled {
+  color: #A0A0A0 !important;
+}
+
+#textbox {
+  width: 310px;
+  margin: 0 auto;
+  border: 0px solid #FFFFFF;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+#controlloTesto {
+  text-align: left !important;
+}
         .button-grid {
           display: grid;
           grid-template-columns: repeat(1, 1fr);
           gap: 15px 20px;
           width: 100%;
-          max-width: 500px;
+          max-width: 320px;
         }
         .button-grid a {
           display: block;
@@ -81,42 +115,53 @@
         }
         </style>
 <meta charset="UTF-8">
-<center>
-  <span style="color:#BF8F00">
-  <h2>Chiesa San Biagio<br>Monza</h2></span>
-</center>
-  <div class="button-grid"><a href="programma.html">PROGRAMMA</a></div>
+  <h2 style="color:#BF8F00">
+  Chiesa San Biagio<br>
+  Monza
+  </h2>
+<meta charset="UTF-8">
 
-         
+<div class="button-grid"><a href="programma.html">PROGRAMMA</a></div>
+
           
 
           <span style="color:#AA0000" font-family="Arial, sans-serif" display="flex" flex-direction="column" align-items="center" font-size="18px">
           <h2>Canti in ordine alfabetico</h2></span>
-          <div class="tutti_i_canti">
-            <a href="alfabetico/A.html">A</a>
-            <a href="alfabetico/B.html">B</a>
-            <a href="alfabetico/C.html">C</a>
-            <a href="alfabetico/D.html">D</a>
-            <a href="alfabetico/E.html">E</a>
-            <a href="alfabetico/F.html">F</a>
-            <a href="alfabetico/G.html">G</a>
-            <a href="alfabetico/H.html">H</a>
-            <a href="alfabetico/I.html">I</a>
-            <a href="alfabetico/J.html">J</a>
-            <a href="alfabetico/K.html">K</a>
-            <a href="alfabetico/L.html">L</a>
-            <a href="alfabetico/M.html">M</a>
-            <a href="alfabetico/N.html">N</a>
-            <a href="alfabetico/O.html">O</a>
-            <a href="alfabetico/P.html">P</a>
-            <a href="alfabetico/Q.html">Q</a>
-            <a href="alfabetico/R.html">R</a>
-            <a href="alfabetico/S.html">S</a>
-            <a href="alfabetico/T.html">T</a>
-            <a href="alfabetico/U.html">U</a>
-            <a href="alfabetico/V.html">V</a>
 
-          </div>
+
+<div class="tutti_i_canti" id="tutti_i_canti"></div>
+
+<script>
+
+function iniziale(titolo) {
+    return titolo
+        .trim()
+        .charAt(0)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase();
+}
+
+fetch("../config/titoli.json")
+    .then(response => response.json())
+    .then(data => {
+
+        const canti = data.canti //.filter(
+//            c => c.id.trim().length === 3
+//        );
+
+        const lettere = [...new Set(
+            canti.map(c => iniziale(c.titolo))
+        )].sort((a, b) => a.localeCompare(b, "it"));
+
+        document.getElementById("tutti_i_canti").innerHTML =
+            lettere.map(lettera =>
+                `<a href="alfabetico.html?l=${encodeURIComponent(lettera)}">${lettera}</a>`
+            ).join("");
+    });
+
+</script>
+
 
           <br>
           <div class="numeri"><a href="numeri.html">Canti in ordine numerico</a></div>
@@ -124,6 +169,5 @@
 
         </div>
       </div>
-    </section>
     </body>
 </html>

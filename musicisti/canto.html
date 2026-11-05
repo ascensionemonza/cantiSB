@@ -128,7 +128,9 @@ if (n) {
 
     }
 
-    fetch("elenco.json")
+    chiave = chiave.replace(/ /g, "");
+
+    fetch("../config/spartiti.json")
 
         .then(response => response.json())
 

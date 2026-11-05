@@ -103,7 +103,7 @@ const lettera =
     (new URLSearchParams(location.search).get("l") || "A")
     .toUpperCase();
 
-fetch("../titoli.json")
+fetch("../config/titoli.json")
     .then(r => r.json())
     .then(data => {
 

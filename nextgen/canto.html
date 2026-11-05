@@ -1,27 +1,35 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<body data-home-page="index.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
+<html lang="it">
 
-<section class="u-clearfix u-palette-1-light-2 u-section-1" id="block-2">
-<div class="u-clearfix u-sheet u-sheet-1">
-<div class="u-clearfix u-custom-html u-expanded-width u-custom-html-1"></div>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body {
+
+body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 0px;
-  }
-  .button-grid {
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+}
+
+#contenuto {
+    width: 100%;
+}
+
+.button-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px 10px;
     width: 100%;
     max-width: 500px;
-  }
-  .button-grid a {
+}
+
+.button-grid a {
     display: block;
     padding: 12px 0;
     text-align: center;
@@ -31,286 +39,41 @@
     border-radius: 80px;
     font-size: 16px;
     font-weight: normal;
-  }
-  .button-grid a:hover {
+}
+
+.button-grid a:hover {
     background-color: #00b300;
     color: white;
-  }
+}
+
 </style>
 
-<meta charset="UTF-8">
+</head>
 
 <body>
 
 <div id="contenuto"></div>
 
+<script src="canto.js"></script>
+
 <script>
-const params = new URLSearchParams(window.location.search);
-let n = params.get("n");
-window.isSpecial163 = false; // flag globale
-
-if (n) {
-
-    n = n.toUpperCase();
-
-    let file;
-
-    if (/^[A-Z]/.test(n)) {
-        const lettera = n.charAt(0);
-        const numero = n.substring(1).padStart(2, "0");
-        file = lettera + numero;
-    } else {
-        file = n.padStart(3, "0");
-    }
-
-    file = "canti/" + file + ".html";
-
-    // imposta flag speciale solo per 163
-    if (file.includes("163")) {
-        window.isSpecial163 = true;
-    }
-    window.isA09 = file.endsWith("A09.html");
-
-    fetch(file)
-      .then(r => r.text())
-      .then(html => {
-        const container = document.getElementById("contenuto");
-        container.innerHTML = ""; // svuota prima
-        container.insertAdjacentHTML("beforeend", html);
-
-        // Esegui gli script del canto (comportamento originale)
-        container.querySelectorAll("script").forEach(oldScript => {
-          const newScript = document.createElement("script");
-          newScript.textContent = oldScript.textContent;
-          // ⭐ eseguiamo gli script nel container, non nel body
-          container.appendChild(newScript);
-        });
-
-        // --- Rileva automaticamente le voci presenti (speciale per 163) ---
-        let vociPresenti;
-
-        if (window.isSpecial163) {
-            // LOGICA SPECIALE PER IL CANTO 163: femmine / tenori / bassi
-            vociPresenti = [...container.querySelectorAll('.femmine, .tenori, .bassi')]
-                .map(v => v.classList[0]);   // femmine / tenori / bassi
-        } else {
-            // LOGICA ORIGINALE PER TUTTI GLI ALTRI CANTI
-            vociPresenti = [...container.querySelectorAll('.voce')]
-                .map(v => v.id);
-        }
-        
-        // --- Rileva automaticamente i bottoni ---
-        const bottoni = [...container.querySelectorAll('.voceBox a')];
-
-        // --- Alias automatici ---
-        window.aliasAutomatici = {};
-
-        bottoni.forEach(btn => {
-            const voce = btn.dataset.voce;
-
-            if (!vociPresenti.includes(voce)) {
-                // Se la voce non esiste, punta alla prima voce disponibile
-                window.aliasAutomatici[voce] = vociPresenti[0];
-            }
-        });
-
-        /*
-        // --- Caricamento voce salvata ---
-        const voceSB = localStorage.getItem('vocePreferita');
-        const voceFM = localStorage.getItem('vocePreferitaFM');
-
-        setTimeout(() => {
-            let voceDaCaricare = null;
-
-            if (voceSB) {
-                voceDaCaricare = voceSB;
-            } else if (voceFM) {
-                voceDaCaricare = voceFM;
-            } else {
-                // fallback: prima voce rilevata
-                voceDaCaricare = vociPresenti[0];
-            }
-
-            if (voceDaCaricare) mostraVoce(voceDaCaricare);
-        }, 0); */
-        // --- Caricamento voce salvata (+A09) ---
-        const voceSB = localStorage.getItem('vocePreferita');
-        const voceSBspeciale = localStorage.getItem('vocePreferitaA09');
-        const voceFM = localStorage.getItem('vocePreferitaFM');
-
-        setTimeout(() => {
-
-            let voceDaCaricare = null;
-
-            // priorità alla voce speciale SOLO nel canto A09
-            if (window.isA09 && voceSBspeciale) {
-
-                voceDaCaricare = voceSBspeciale;
-
-            } else if (voceSB) {
-
-                voceDaCaricare = voceSB;
-
-            } else if (voceFM) {
-
-                voceDaCaricare = voceFM;
-
-            } else {
-
-                // fallback: prima voce rilevata
-                voceDaCaricare = vociPresenti[0];
-            }
-
-            if (voceDaCaricare) {
-                mostraVoce(voceDaCaricare);
-            }
-
-        }, 0);
-
-
-        // ⭐ ATTIVA GLI ACCORDION SOLO SE SIAMO NEL 163
-        if (window.isSpecial163) {
-            requestAnimationFrame(() => {
-                container.querySelectorAll(".mistero-header").forEach(header => {
-                    header.addEventListener("click", () => {
-                        const mistero = header.parentElement;
-                        const aperto = mistero.classList.toggle("aperto");
-                        mistero.querySelector(".mistero-contenuto").style.display =
-                            aperto ? "block" : "none";
-
-                        // aggiorna la voce mostrata nei misteri aperti
-                        aggiornaVoceNeiMisteriAperti();
-                    });
-                });
-            });
-        }
-
-      });
-
-} else {
-    document.body.innerHTML = "<h2>Nessun parametro ricevuto.</h2>";
-}
-
-
-/* ---------------------------
-   MOSTRA LA VOCE SELEZIONATA
-   --------------------------- */
-
-function mostraVoce(voce) {
-
-    const container = document.getElementById("contenuto");
-
-    // Alias automatico
-    const voceReale = window.aliasAutomatici[voce] || voce;
-    window.voceCorrente = voceReale;
-
-    if (window.isSpecial163) {
-        // --- LOGICA SPECIALE SOLO PER 163: femmine / tenori / bassi ---
-        container.querySelectorAll('.femmine, .tenori, .bassi')
-            .forEach(v => v.style.display = 'none');
-
-        // mostra la voce corrente in tutti i misteri aperti
-        aggiornaVoceNeiMisteriAperti();
-
-    } else {
-        // --- LOGICA ORIGINALE: .voce + id ---
-        document.querySelectorAll('.voce').forEach(v => v.style.display = 'none');
-
-        const target = document.getElementById(voceReale);
-        if (target) target.style.display = 'block';
-    }
-
-    // Evidenziazione bottoni (comportamento originale)
-    document.querySelectorAll(".voceBox a").forEach(btn => {
-        btn.classList.remove("attivo");
-    });
-
-    const btnAttivo = document.querySelector(`.voceBox a[data-voce="${voce}"]`);
-    if (btnAttivo) btnAttivo.classList.add("attivo");
-}
-
-
-/* ---------------------------
-   AGGIORNA VOCI NEI MISTERI APERTI (solo 163)
-   --------------------------- */
-
-function aggiornaVoceNeiMisteriAperti() {
-    if (!window.isSpecial163) return;
-
-    const container = document.getElementById("contenuto");
-    const voceCorrente = window.voceCorrente || "femmine";
-
-    const misteriAperti = container.querySelectorAll(".mistero.aperto");
-
-    misteriAperti.forEach(mistero => {
-        mistero.querySelectorAll(".femmine, .tenori, .bassi")
-            .forEach(v => v.style.display = "none");
-
-        const target = mistero.querySelector("." + voceCorrente);
-        if (target) target.style.display = "block";
-    });
-}
-
-
-/* ---------------------------
-   SELEZIONE + MEMORIZZAZIONE
-   --------------------------- */
-/*
-function selezionaVoce(voce) {
-
-    // Salva voce SB
-    if (['soprani', 'contralti', 'tenori', 'bassi'].includes(voce)) {
-        localStorage.setItem('vocePreferita', voce);
-    }
-
-    // Salva voce FM
-    if (['femmine', 'maschi'].includes(voce)) {
-        localStorage.setItem('vocePreferitaFM', voce);
-    }
-
-    mostraVoce(voce);
-}
-*/
-function selezionaVoce(voce) {
-
-    // Caso speciale A09
-    if (voce === 'specialeA09') {
-
-        localStorage.setItem('vocePreferitaA09', voce);
-
-    }
-
-    else if (['soprani', 'contralti', 'tenori', 'bassi'].includes(voce)) {
-
-        localStorage.setItem('vocePreferita', voce);
-
-        // annulla la scelta speciale SOLO se siamo nel canto A09
-        if (window.isA09) {
-            localStorage.removeItem('vocePreferitaA09');
-        }
-    }
-
-    // Sistema femmine/maschi (canto 163)
-    else if (['femmine', 'maschi'].includes(voce)) {
-
-        localStorage.setItem('vocePreferitaFM', voce);
-
-    }
-
-    mostraVoce(voce);
-}
-
-
+const n =
+    new URLSearchParams(
+        location.search
+    ).get("n");
+
+caricaCanto(n);
 </script>
 
 <br><br>
 
 <div class="button-grid">
-  <a href="javascript:history.back()">Indietro</a>
-  <a href="index.html">Indice</a>
-  <a href="numeri.html">Indice numerico</a>
+    <a href="javascript:history.back()">Indietro</a>
+    <a href="index.html">Indice</a>
+    <a href="numeri.html">Indice numerico</a>
 </div>
 
 <br><br>
+
 </body>
 </html>

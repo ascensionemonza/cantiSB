@@ -1,380 +1,170 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<body data-home-page="index.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
+<html lang="it">
 
-<section class="u-clearfix u-palette-1-light-2 u-section-1" id="block-2">
-<div class="u-clearfix u-sheet u-sheet-1">
-<div class="u-clearfix u-custom-html u-expanded-width u-custom-html-1"></div>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body {
+
+body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 0px;
-  }
-  .button-grid {
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #BF8F00;
+    text-align: center;
+    width: 100%;
+}
+
+.button-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px 10px;
     width: 100%;
-    max-width: 500px;
-  }
-  .button-grid a {
+    max-width: 600px;
+}
+
+.button-grid a {
     display: block;
-    padding: 12px 0;
+    padding: 12px 6px;
     text-align: center;
     background-color: #BF8F00;
     color: white;
     text-decoration: none;
     border-radius: 80px;
     font-size: 16px;
-    font-weight: normal;
-  }
-  .button-grid a:hover {
+}
+
+.button-grid a:hover {
     background-color: #00b300;
-    color: white;
-  }
+}
+
 </style>
 
-<meta charset="UTF-8">
+</head>
 
-<center>
-    <span style="color:#BF8F00">
-        <h1>
-            <div id="header"></div>
-        </h1>
-    </span>
-</center>
+<body>
+
+<h1 id="header"></h1>
+
 <div id="contenuto"></div>
+
 <br>
-<br>
+
 <div id="footer" class="button-grid"></div>
 
+<script src="canto.js"></script>
+
 <script>
-fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
-  .then(response => response.text())
-  .then(text => {
-    const lines = text.split(/\r?\n/);
-    caricaconst(lines);
-  });
 
-function crea_canto_lit(costanti, lines) {
+const params =
+    new URLSearchParams(
+        location.search
+    );
 
-    const params = new URLSearchParams(window.location.search);
-    let n = params.get("n");
-    window.isSpecial163 = false; // flag globale
+const indice =
+    parseInt(
+        params.get("n")
+    );
 
-    const liturgie = costanti[0].split(',');
-    const momento = n;
-    const parametroStringa = lines[1];
+fetch(
+    "../config/liturgie.json?nocache=" +
+    Date.now()
+)
+.then(r => r.json())
+.then(dati =>
+{
+    const liturgie =
+        dati.liturgie;
 
-    let mioArray = parametroStringa.split(';');
-    var prev_i = -1;
-    var i = 0;
+    const corrente =
+        liturgie[indice];
 
-    let file;
+    if (
+        !corrente ||
+        !corrente.canto
+    )
+    {
+        location.href =
+            "index.html";
 
-    if (mioArray[momento] != "") {
-
-        file = "canti/";
-        if (mioArray[momento].substring(0,3) == "149") mioArray[momento] = "149";
-        if (mioArray[momento].substring(0,3) == "163") mioArray[momento] = "163";
-
-        file += codice(mioArray[momento]);
-        file += ".html";
-
-        for (i = 0; i < 25; i++) {
-        if (mioArray[i] != 0) {
-            if (mioArray[i].substring(0,3) == "149") mioArray[i] = "149";
-            if (mioArray[i].substring(0,3) == "163") mioArray[i] = "163";
-
-            if (mioArray[i].charAt(3) == "") {
-            if (i < momento) prev_i = i;
-            if (i > momento) break;
-            }
-        }
-        }
-
-        // imposta flag speciale solo per 163
-        if (file.includes("163")) {
-            window.isSpecial163 = true;
-        }
-        window.isA09 = file.endsWith("A09.html");
-
-        // HEADER (MOMENTO DELLA LITURGIA)
-        const containerH = document.getElementById("header");
-        containerH.innerHTML = ""; // svuota prima
-        containerH.insertAdjacentHTML("beforeend", liturgie[n]);
-
-        // CONTENUTO (TITOLO E TESTO DEL CANTO)
-        fetch(file)
-        .then(r => r.text())
-        .then(html => {
-            const container = document.getElementById("contenuto");
-            container.innerHTML = ""; // svuota prima
-            container.insertAdjacentHTML("beforeend", html);
-
-            // Esegui gli script del canto (comportamento originale)
-            container.querySelectorAll("script").forEach(oldScript => {
-            const newScript = document.createElement("script");
-            newScript.textContent = oldScript.textContent;
-            // ⭐ eseguiamo gli script nel container, non nel body
-            container.appendChild(newScript);
-            });
-
-            // --- Rileva automaticamente le voci presenti (speciale per 163) ---
-            let vociPresenti;
-
-            if (window.isSpecial163) {
-                // LOGICA SPECIALE PER IL CANTO 163: femmine / tenori / bassi
-                vociPresenti = [...container.querySelectorAll('.femmine, .tenori, .bassi')]
-                    .map(v => v.classList[0]);   // femmine / tenori / bassi
-            } else {
-                // LOGICA ORIGINALE PER TUTTI GLI ALTRI CANTI
-                vociPresenti = [...container.querySelectorAll('.voce')]
-                    .map(v => v.id);
-            }
-            
-            // --- Rileva automaticamente i bottoni ---
-            const bottoni = [...container.querySelectorAll('.voceBox a')];
-
-            // --- Alias automatici ---
-            window.aliasAutomatici = {};
-
-            bottoni.forEach(btn => {
-                const voce = btn.dataset.voce;
-
-                if (!vociPresenti.includes(voce)) {
-                    // Se la voce non esiste, punta alla prima voce disponibile
-                    window.aliasAutomatici[voce] = vociPresenti[0];
-                }
-            });
-/*
-            // --- Caricamento voce salvata ---
-            const voceSB = localStorage.getItem('vocePreferita');
-            const voceFM = localStorage.getItem('vocePreferitaFM');
-
-            setTimeout(() => {
-                let voceDaCaricare = null;
-
-                if (voceSB) {
-                    voceDaCaricare = voceSB;
-                } else if (voceFM) {
-                    voceDaCaricare = voceFM;
-                } else {
-                    // fallback: prima voce rilevata
-                    voceDaCaricare = vociPresenti[0];
-                }
-                if (voceDaCaricare) {
-                    mostraVoce(voceDaCaricare);
-                    selezionaVoce(voceDaCaricare);
-                }
-            }, 0);
-*/
-            // --- Caricamento voce salvata (+A09) ---
-            const voceSB = localStorage.getItem('vocePreferita');
-            const voceSBspeciale = localStorage.getItem('vocePreferitaA09');
-            const voceFM = localStorage.getItem('vocePreferitaFM');
-
-            setTimeout(() => {
-
-                let voceDaCaricare = null;
-
-                // A09: usa la voce speciale se presente
-                if (window.isA09 && voceSBspeciale) {
-
-                    voceDaCaricare = voceSBspeciale;
-
-                } else if (voceSB) {
-
-                    voceDaCaricare = voceSB;
-
-                } else if (voceFM) {
-
-                    voceDaCaricare = voceFM;
-
-                } else {
-
-                    voceDaCaricare = vociPresenti[0];
-                }
-
-                if (voceDaCaricare) {
-                    mostraVoce(voceDaCaricare);
-                }
-
-            }, 0);
-
-        });
-
-
-        // FOOTER (PULSANTI)
-        const containerF = document.getElementById("footer");
-        var mioFooter = "";
-        containerF.innerHTML = ""; // svuota prima
-
-        if (prev_i == -1) {
-            mioFooter =
-                "<a href=\"index.html\">-</a> " +
-                "<a href=\"index.html\">Indice</a> " +
-                "<a href=\"liturgia.html?n=" + i + "\">" + liturgie[i] + "</a>";
-        }
-        else {
-            if (i == 25) {
-                mioFooter =
-                    "<a href=\"liturgia.html?n=" + prev_i + "\">" + liturgie[prev_i] + "</a> " +
-                    "<a href=\"index.html\">Indice</a> " +
-                    "<a href=\"index.html\">-</a>";
-            } else {
-                mioFooter =
-                    "<a href=\"liturgia.html?n=" + prev_i + "\">" + liturgie[prev_i] + "</a> " +
-                    "<a href=\"index.html\">Indice</a> " +
-                    "<a href=\"liturgia.html?n=" + i + "\">" + liturgie[i] + "</a>";
-            }
-        }
-
-        containerF.insertAdjacentHTML("beforeend", mioFooter);
-
+        return;
     }
 
-}
+    document.getElementById(
+        "header"
+    ).textContent =
+        corrente.momento;
 
-function caricaconst(lines) {
-  fetch("/cantiSB/costanti.txt")
-  .then(response => response.text())
-  .then(text => {
-    const costanti = text.split(/\r?\n/);
-    crea_canto_lit(costanti, lines); // -- devo sistemare questo
-   });
-}
+    caricaCanto(
+        corrente.canto
+    );
 
-/* ---------------------------
-   MOSTRA LA VOCE SELEZIONATA
-   --------------------------- */
+    let precedente = -1;
 
-function mostraVoce(voce) {
-
-    const container = document.getElementById("contenuto");
-
-    // Alias automatico
-    const voceReale = window.aliasAutomatici[voce] || voce;
-    window.voceCorrente = voceReale;
-
-    if (window.isSpecial163) {
-        // --- LOGICA SPECIALE SOLO PER 163: femmine / tenori / bassi ---
-        container.querySelectorAll('.femmine, .tenori, .bassi')
-            .forEach(v => v.style.display = 'none');
-
-        // mostra la voce corrente in tutti i misteri aperti
-        aggiornaVoceNeiMisteriApertiLiturgia();
-
-    } else {
-        // --- LOGICA ORIGINALE: .voce + id ---
-        document.querySelectorAll('.voce').forEach(v => v.style.display = 'none');
-
-        const target = document.getElementById(voceReale);
-        if (target) target.style.display = 'block';
-    }
-
-    // Evidenziazione bottoni (comportamento originale)
-    document.querySelectorAll(".voceBox a").forEach(btn => {
-        btn.classList.remove("attivo");
-    });
-
-    const btnAttivo = document.querySelector(`.voceBox a[data-voce="${voce}"]`);
-    if (btnAttivo) btnAttivo.classList.add("attivo");
-}
-
-
-/* ---------------------------
-   AGGIORNA VOCI NEI MISTERI APERTI (solo 163)
-   --------------------------- */
-function aggiornaVoceNeiMisteriApertiLiturgia() {
-
-    if (!window.isSpecial163) return;
-
-    const container = document.getElementById("contenuto");
-    const voceCorrente = window.voceCorrente;
-    const misteriAperti = container.querySelectorAll(".mistero.aperto");
-
-    misteriAperti.forEach(mistero => {
-        mistero.querySelectorAll(".femmine, .tenori, .bassi")
-            .forEach(v => v.style.display = "none");
-
-        const target = mistero.querySelector("." + voceCorrente);
-        if (target) target.style.display = "block";
-    });
-
-}
-
-
-/* ---------------------------
-   SELEZIONE + MEMORIZZAZIONE
-   --------------------------- */
-/*
-function selezionaVoce(voce) {
-
-    // Salva voce SB
-    if (['soprani', 'contralti', 'tenori', 'bassi'].includes(voce)) {
-        localStorage.setItem('vocePreferita', voce);
-    }
-
-    // Salva voce FM
-    if (['femmine', 'maschi'].includes(voce)) {
-        localStorage.setItem('vocePreferitaFM', voce);
-    }
-
-    mostraVoce(voce);
-}
-*/
-function selezionaVoce(voce) {
-
-    // Caso speciale A09
-    if (voce === 'specialeA09') {
-
-        localStorage.setItem('vocePreferitaA09', voce);
-
-    }
-
-    else if (['soprani', 'contralti', 'tenori', 'bassi'].includes(voce)) {
-
-        localStorage.setItem('vocePreferita', voce);
-
-        // annulla la scelta speciale SOLO se siamo nel canto A09
-        if (window.isA09) {
-            localStorage.removeItem('vocePreferitaA09');
+    for (
+        let i = indice - 1;
+        i >= 0;
+        i--
+    )
+    {
+        if (liturgie[i].canto)
+        {
+            precedente = i;
+            break;
         }
     }
 
-    // Sistema femmine/maschi (canto 163)
-    else if (['femmine', 'maschi'].includes(voce)) {
+    let successivo = -1;
 
-        localStorage.setItem('vocePreferitaFM', voce);
-
+    for (
+        let i = indice + 1;
+        i < liturgie.length;
+        i++
+    )
+    {
+        if (liturgie[i].canto)
+        {
+            successivo = i;
+            break;
+        }
     }
 
-    mostraVoce(voce);
-}
+    document.getElementById(
+        "footer"
+    ).innerHTML =
 
+        (precedente < 0
 
-function codice(numero) {
+            ? '<a href="index.html">-</a>'
 
-    if (!numero) return null;
+            : `<a href="liturgia.html?n=${precedente}">
+                   ${liturgie[precedente].momento}
+               </a>`)
 
-    numero = numero.toUpperCase();
+        +
 
-    let iniziale = numero.charAt(0);
-    if (/^[A-Z]/.test(iniziale)) {
-        return numero.charAt(0) + numero.substring(1).padStart(2,"0");
-    }
+        '<a href="index.html">Indice</a>'
 
-    return numero.padStart(3,"0");
-}
+        +
+
+        (successivo < 0
+
+            ? '<a href="index.html">-</a>'
+
+            : `<a href="liturgia.html?n=${successivo}">
+                   ${liturgie[successivo].momento}
+               </a>`);
+});
 
 </script>
 
-
-<br><br>
 </body>
 </html>

@@ -1,26 +1,44 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<body data-home-page="index.html" data-home-page-title="Home" data-path-to-root="/" data-include-products="false" class="u-body u-clearfix u-palette-1-light-2 u-xl-mode" data-lang="it">
+<html lang="it">
 
-<section class="u-clearfix u-palette-1-light-2 u-section-1" id="block-2">
-<div class="u-clearfix u-sheet u-sheet-1">
-<div class="u-clearfix u-custom-html u-expanded-width u-custom-html-1"></div>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body {
+
+body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
-    padding: 0px;
-  }
-  .button-grid {
+    margin: 0;
+    padding: 0;
+}
+
+#header {
+    color: #BF8F00;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    font-size: 1.4em;
+    margin: 10px 0;
+}
+
+#contenuto {
+    width: 100%;
+}
+
+.button-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px 10px;
     width: 100%;
     max-width: 500px;
-  }
-  .button-grid a {
+    margin: 10px auto;
+}
+
+.button-grid a {
     display: block;
     padding: 12px 0;
     text-align: center;
@@ -30,205 +48,225 @@
     border-radius: 80px;
     font-size: 16px;
     font-weight: normal;
-  }
-  .button-grid a:hover {
-    background-color: #00b300;
-    color: white;
-  }
+}
 
+.button-grid a:hover {
+    background-color: #00b300;
+}
 
 </style>
 
-<meta charset="UTF-8">
+</head>
 
-<center>
-    <span style="color:#BF8F00"><b>
-            <div id="header"></div></b>
-    </span>
-</center>
+<body>
+
+<div id="header"></div>
+
 <div id="contenuto"></div>
 
-<center>
 <div id="footer" class="button-grid"></div>
-</center>
-
 
 <script>
-    fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
-    .then(response => response.text())
-    .then(text => {
-        const lines = text.split(/\r?\n/);
-        caricaconst(lines);
-    });
 
-    function crea_canto_lit(costanti, lines) {
+function codice(id)
+{
+    if (!id) return "";
 
-        const params = new URLSearchParams(window.location.search);
-        let n = params.get("n");
+    id = id.toUpperCase().trim();
 
-        const liturgie = costanti[0].split(',');
-        const momento = n;
-        const parametroStringa = lines[1];
+    const lettera =
+        id.match(/^([A-Z])\s*(\d+)$/);
 
-        let mioArray = parametroStringa.split(';');
-        let prev_i = -1;
-        let i = 0;
+    if (lettera)
+    {
+        return (
+            lettera[1] +
+            lettera[2].padStart(2, "0")
+        );
+    }
 
-        if (mioArray[momento] != "") {
+    if (/^\d+$/.test(id))
+    {
+        return id.padStart(3, "0");
+    }
 
-            for (i = 0; i < 25; i++) {
+    return id.replace(/\s+/g, "");
+}
 
-                if (mioArray[i] != 0) {
+const params =
+    new URLSearchParams(location.search);
 
-                    if (mioArray[i].substring(0,3) == "149") mioArray[i] = "149";
-                    if (mioArray[i].substring(0,3) == "163") mioArray[i] = "163";
+const indice =
+    parseInt(params.get("n"));
 
-    //                if (mioArray[i].charAt(3) == "") {
+fetch(
+    "../config/liturgie.json?nocache=" +
+    Date.now()
+)
+.then(response => response.json())
+.then(liturgieData =>
+{
+    const liturgie =
+        liturgieData.liturgie;
 
-                        if (i < momento) prev_i = i;
-                        if (i > momento) break;
+    const corrente =
+        liturgie[indice];
 
-    //                }
+    document.getElementById(
+        "header"
+    ).textContent =
+        corrente.momento.toUpperCase();
 
+    fetch("elenco.json")
+        .then(r => r.json())
+        .then(elenco =>
+        {
+            const chiave =
+                codice(
+                    corrente.canto
+                );
+
+            let pdf =
+                elenco[chiave];
+
+            const usaAccordi =
+                localStorage.getItem(
+                    "accordi"
+                ) === "true";
+
+            if (usaAccordi)
+            {
+                const chiaveAccordi =
+                    chiave + "A";
+
+                if (
+                    elenco[chiaveAccordi]
+                )
+                {
+                    pdf =
+                        elenco[
+                            chiaveAccordi
+                        ];
                 }
-
             }
 
-            // HEADER
-            const containerH = document.getElementById("header");
+            if (!pdf)
+            {
+                document.getElementById(
+                    "contenuto"
+                ).innerHTML =
+                    `<h2>
+                        Spartito non trovato
+                        (${chiave})
+                    </h2>`;
 
-            containerH.innerHTML = "";
-            containerH.insertAdjacentHTML("beforeend", liturgie[n].toUpperCase());
-
-            // CONTENUTO
-            fetch("elenco.json")
-
-                .then(r => r.json())
-
-                .then(elenco => {
-
-                    const chiave = codice(mioArray[momento]);
-
-                    let pdf = elenco[chiave];
-
-
-                    const usaAccordi = localStorage.getItem("accordi") === "true";
-
-                    if (usaAccordi) {
-
-                        const chiaveAccordi = chiave + "A";
-
-                        if (elenco[chiaveAccordi]) {
-
-                            pdf = elenco[chiaveAccordi];
-
-                        }
-
-                    }
-
-                    if (!pdf) {
-
-                        document.getElementById("contenuto").innerHTML =
-                            `<h2>Spartito non trovato (${chiave})</h2>`;
-
-                        return;
-
-                    }
-
-                    const container = document.getElementById("contenuto");
-
-                    const percorsoPulito = pdf
-                        .split("?")[0]
-                        .toLowerCase();
-
-                    if (
-                        percorsoPulito.endsWith(".jpg") ||
-                        percorsoPulito.endsWith(".jpeg") ||
-                        percorsoPulito.endsWith(".png") ||
-                        percorsoPulito.endsWith(".webp")
-                    ) {
-
-                        container.innerHTML =
-                            `<img src="${pdf}" style="max-width:100%;height:auto;">`;
-
-                    } else {
-
-const pdfUrl = new URL(pdf, window.location.href).href;
-
-container.innerHTML =
-    `<iframe
-        src="/cantiSB/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}"
-        style="width:100%;height:89vh;border:none;">
-     </iframe>`;
-                    }
-
-                });
-
-            // FOOTER
-            const containerF = document.getElementById("footer");
-
-            let mioFooter = "";
-
-            containerF.innerHTML = "";
-
-            if (prev_i == -1) {
-
-                mioFooter =
-                    `<a href="index.html">-</a>
-                    <a href="index.html">Indice</a>
-                    <a href="liturgia.html?n=${i}">${liturgie[i]}</a>`;
-
-            } else {
-
-                if (i == 25) {
-
-                    mioFooter =
-                        `<a href="liturgia.html?n=${prev_i}">${liturgie[prev_i]}</a>
-                        <a href="index.html">Indice</a>
-                        <a href="index.html">-</a>`;
-
-                } else {
-
-                    mioFooter =
-                        `<a href="liturgia.html?n=${prev_i}">${liturgie[prev_i]}</a>
-                        <a href="index.html">Indice</a>
-                        <a href="liturgia.html?n=${i}">${liturgie[i]}</a>`;
-
-                }
-
+                return;
             }
 
-            containerF.insertAdjacentHTML("beforeend", mioFooter);
+            const container =
+                document.getElementById(
+                    "contenuto"
+                );
 
+            const percorsoPulito =
+                pdf
+                .split("?")[0]
+                .toLowerCase();
+
+            if (
+                percorsoPulito.endsWith(".jpg") ||
+                percorsoPulito.endsWith(".jpeg") ||
+                percorsoPulito.endsWith(".png") ||
+                percorsoPulito.endsWith(".webp")
+            )
+            {
+                container.innerHTML =
+                    `<img
+                        src="${pdf}"
+                        style="
+                            max-width:100%;
+                            height:auto;
+                        "
+                    >`;
+            }
+            else
+            {
+                const pdfUrl =
+                    new URL(
+                        pdf,
+                        window.location.href
+                    ).href;
+
+                container.innerHTML =
+                    `<iframe
+                        src="/cantiSB/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}"
+                        style="
+                            width:100%;
+                            height:89vh;
+                            border:none;
+                        ">
+                    </iframe>`;
+            }
+        });
+
+    let precedente = -1;
+
+    for (
+        let i = indice - 1;
+        i >= 0;
+        i--
+    )
+    {
+        if (liturgie[i].canto)
+        {
+            precedente = i;
+            break;
         }
-
     }
 
-    function caricaconst(lines) {
-    fetch("/cantiSB/costanti.txt")
-    .then(response => response.text())
-    .then(text => {
-        const costanti = text.split(/\r?\n/);
-        crea_canto_lit(costanti, lines);
-    });
-    }
+    let successivo = -1;
 
-    function codice(numero) {
-
-        if (!numero) return null;
-
-        numero = numero.toUpperCase();
-
-        let iniziale = numero.charAt(0);
-        if (/^[A-Z]/.test(iniziale)) {
-            return numero.charAt(0) + numero.substring(1).padStart(2,"0");
+    for (
+        let i = indice + 1;
+        i < liturgie.length;
+        i++
+    )
+    {
+        if (liturgie[i].canto)
+        {
+            successivo = i;
+            break;
         }
-
-        return numero.padStart(3,"0");
     }
+
+    document.getElementById(
+        "footer"
+    ).innerHTML =
+
+        (precedente < 0
+
+            ? '<a href="index.html">-</a>'
+
+            : `<a href="liturgia.html?n=${precedente}">
+                    ${liturgie[precedente].momento}
+               </a>`)
+
+        +
+
+        '<a href="index.html">Indice</a>'
+
+        +
+
+        (successivo < 0
+
+            ? '<a href="index.html">-</a>'
+
+            : `<a href="liturgia.html?n=${successivo}">
+                    ${liturgie[successivo].momento}
+               </a>`);
+});
 
 </script>
-
 
 </body>
 </html>

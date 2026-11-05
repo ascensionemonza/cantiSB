@@ -1,180 +1,171 @@
+
 <!DOCTYPE html>
-<html lang="it">
-
-<head>
-
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <body>
+        <style> body {
+          font-family: Arial, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          font-size: 18px;
+          text-align: center;
+        }
+        .button-grid {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 15px 20px;
+          width: 100%;
+          max-width: 320px;
+        }
+        .button-grid a {
+          display: block;
+          padding: 12px 6px;
+          text-align: center;
+          color: white;
+          background-color: #BF8F00;
+          text-decoration: none;
+          border-radius: 80px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+        .button-grid a:hover {
+          background-color: #00b300;
+          color: white;
+        }
+        .tutti_i_canti {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 15px 20px;
+          width: 100%;
+          max-width: 320px;
+        }
+        .tutti_i_canti a {
+          display: block;
+          padding: 10px 6px;
+          text-align: center;
+          color: white;
+          background-color: #AA0000;
+          text-decoration: none;
+          border-radius: 112px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+        .tutti_i_canti a:hover {
+          background-color: #00b300;
+          color: white;
+        }
+        .numeri {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 115px 20px;
+          width: 100%;
+          max-width: 320px;
+        }
+        .numeri a {
+          display: block;
+          padding: 12px 6px;
+          text-align: center;
+          color: white;
+          background-color: #AA0000;
+          text-decoration: none;
+          border-radius: 80px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+        .numeri a:hover {
+          background-color: #00b300;
+          color: white;
+        }
 
-<style>
-
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 18px;
-    text-align: center;
+.a-disabled {
+  color: #A0A0A0 !important;
 }
 
-.button-grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 15px 20px;
-    width: 100%;
-    max-width: 320px;
+#textbox {
+  width: 310px;
+  margin: 0 auto;
+  border: 0px solid #FFFFFF;
+  padding: 0px;
+  box-sizing: border-box;
 }
 
-.button-grid a {
-    display: block;
-    padding: 12px 6px;
-    text-align: center;
-    color: white;
-    background-color: #BF8F00;
-    text-decoration: none;
-    border-radius: 80px;
-    font-size: 16px;
-    font-weight: normal;
+#controlloTesto {
+  text-align: left !important;
 }
 
-.button-grid a:hover {
-    background-color: #00b300;
-    color: white;
-}
 
-.tutti_i_canti {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 15px 20px;
-    width: 100%;
-    max-width: 320px;
-}
-
-.tutti_i_canti a {
-    display: block;
-    padding: 10px 6px;
-    text-align: center;
-    color: white;
-    background-color: #AA0000;
-    text-decoration: none;
-    border-radius: 112px;
-    font-size: 16px;
-}
-
-.tutti_i_canti a:hover {
-    background-color: #00b300;
-}
-
-.asbutton {
-    display: grid;
-    width: 100%;
-    max-width: 320px;
-}
-
-.asbutton a {
-    display: block;
-    padding: 12px 6px;
-    text-align: center;
-    color: #AA0000;
-    background-color: white;
-    text-decoration: none;
-    border-radius: 80px;
-    border: 2px solid #AA0000;
-    font-size: 16px;
-}
-
-.asbutton a:hover {
-    background-color: #AA0000;
-    color: white;
-}
-
-.numeri {
-    display: grid;
-    width: 100%;
-    max-width: 320px;
-}
-
-.numeri a {
-    display: block;
-    padding: 12px 6px;
-    text-align: center;
-    color: white;
-    background-color: #AA0000;
-    text-decoration: none;
-    border-radius: 80px;
-    font-size: 16px;
-}
-
-.numeri a:hover {
-    background-color: #00b300;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h2 style="color:#BF8F00">
-    Chiesa San Biagio<br>
-    Monza
-</h2>
-
-<div id="data_e_ora"></div>
-
-<div class="asbutton">
-    <a href="#" id="toggleAccordi">Spartiti</a>
-</div>
-
-<br>
-
-<div class="button-grid" id="programma"></div>
-
-<div id="contenuto"></div>
+        </style>
+<meta charset="UTF-8">
+  <h2 style="color:#BF8F00">
+  Chiesa San Biagio<br>
+  Monza
+  </h2>
+  <div id="data_e_ora"></div>
+  <div class="button-grid" id="programma"></div>
+  <div id="contenuto"></div>
 
 <script>
 
-document.getElementById("toggleAccordi")
-    .addEventListener("click", function(e) {
+fetch("../config/liturgie.json?nocache=" + Date.now())
+  .then(response => response.json())
+  .then(liturgieData => {
 
-        e.preventDefault();
+      crea_programma(liturgieData);
+  });
 
-        const accordi =
-            localStorage.getItem("accordi") === "true";
 
-        localStorage.setItem(
-            "accordi",
-            !accordi
-        );
-
-        aggiornaPulsanteAccordi();
-});
-
-function aggiornaPulsanteAccordi()
+function crea_programma(liturgieData)
 {
-    const accordi =
-        localStorage.getItem("accordi") === "true";
+    document.getElementById("data_e_ora").innerHTML =
+        "<h3>Programma del<br>" +
+        liturgieData.data +
+        "</h3>";
 
-    document.getElementById("toggleAccordi").textContent =
-        accordi
-            ? "Accordi"
-            : "Spartiti";
+    const liturgie = liturgieData.liturgie;
+
+    let html = "";
+
+    for (let i = 0; i < liturgie.length; i++) {
+
+        const liturgia = liturgie[i];
+
+        if (
+            !liturgia.canto 
+        )
+            continue;
+
+        const prefisso =
+             `${liturgia.momento}: `;
+
+        html += `
+            <a href="liturgia.html?n=${i}">
+                ${prefisso}${liturgia.titolo}
+                (${liturgia.canto})
+            </a>
+        `;
+    }
+
+    html +=
+        '<div style="text-align:center;">' +
+        '<img src="../NextGen.png" style="height:100px">' +
+        '</div>';
+
+    document.getElementById("programma").innerHTML = html;
 }
 
-aggiornaPulsanteAccordi();
+</script>
+         
+          
 
-function normalizzaId(id)
-{
-    id = id.trim().toUpperCase();
+          <span style="color:#AA0000" font-family="Arial, sans-serif" display="flex" flex-direction="column" align-items="center" font-size="18px">
+          <h2>Canti in ordine alfabetico</h2></span>
 
-    if (/^\d+$/.test(id))
-        return id.padStart(3, "0");
 
-    return id.replace(/\s+/g, "");
-}
+<div class="tutti_i_canti" id="tutti_i_canti"></div>
 
-function iniziale(titolo)
-{
+<script>
+
+function iniziale(titolo) {
     return titolo
         .trim()
         .charAt(0)
@@ -183,120 +174,17 @@ function iniziale(titolo)
         .toUpperCase();
 }
 
-fetch("../config/config.txt?nocache=" + Date.now())
-    .then(r => r.text())
-    .then(text => {
-
-        const config =
-            text.split(/\r?\n/);
-
-        crea_programma(config);
-    });
-
-async function crea_programma(config)
-{
-    const liturgieData =
-        await fetch("../liturgie.json")
-            .then(r => r.json());
-
-    const titoliData =
-        await fetch("../titoli.json")
-            .then(r => r.json());
-
-    document.getElementById("data_e_ora").innerHTML =
-        "<h3>Programma del<br>" +
-        config[0] +
-        "</h3>";
-
-    const mioArray =
-        config[1].split(";");
-
-    let html = "";
-
-    for (let i = 0; i < 24; i++)
-    {
-        let codice = mioArray[i];
-
-        if (!codice || codice === "0")
-            continue;
-
-        if (codice.substring(0,3) === "149")
-            codice = "149";
-
-        if (codice.substring(0,3) === "163")
-            codice = "163";
-
-        const canto =
-            titoliData.canti.find(
-                c =>
-                    normalizzaId(c.id) ===
-                    normalizzaId(codice)
-            );
-
-        if (canto)
-        {
-
-        const senzaPrefisso = [
-            "Kyrie Eleison",
-            "Gloria",
-            "Santo",
-            "Dossologia",
-            "Agnello di Dio"
-        ];
-
-        const prefisso =
-            senzaPrefisso.includes(liturgieData.liturgie[i])
-                ? ""
-                : `${liturgieData.liturgie[i]}: `;
-
-            html += `
-                <a href="liturgia.html?n=${i}">
-                    ${prefisso}${canto.titolo}
-                    (${mioArray[i]})
-                </a>
-            `;
-        }
-        else
-        {
-            html += `
-                <a href="liturgia.html?n=${i}">
-                    ${liturgieData.liturgie[i]}:
-                    ${mioArray[i]}
-                </a>
-            `;
-        }
-    }
-
-    html +=
-        '<div style="text-align:center;">' +
-        '<img src="../NextGen.png" style="height:100px">' +
-        '</div>';
-
-    document.getElementById("programma")
-        .innerHTML = html;
-}
-
-</script>
-
-<h2 style="color:#AA0000">
-    Canti in ordine alfabetico
-</h2>
-
-<div class="tutti_i_canti" id="tutti_i_canti"></div>
-
-<script>
-
-fetch("../titoli.json")
-    .then(r => r.json())
+fetch("../config/titoli.json")
+    .then(response => response.json())
     .then(data => {
 
-        const lettere = [...new Set(
-            data.canti.map(
-                c => iniziale(c.titolo)
-            )
-        )].sort((a,b)=>
-            a.localeCompare(b,"it")
+        const canti = data.canti.filter(
+            c => c.id.trim().length === 3
         );
+
+        const lettere = [...new Set(
+            canti.map(c => iniziale(c.titolo))
+        )].sort((a, b) => a.localeCompare(b, "it"));
 
         document.getElementById("tutti_i_canti").innerHTML =
             lettere.map(lettera =>
@@ -306,15 +194,11 @@ fetch("../titoli.json")
 
 </script>
 
-<br>
+          <br>
+          <div class="numeri"><a href="numeri.html">Canti in ordine numerico</a></div>
+          <br>
 
-<div class="numeri">
-    <a href="numeri.html">
-        Canti in ordine numerico
-    </a>
-</div>
 
-<br><br>
 
-</body>
+  </body>
 </html>

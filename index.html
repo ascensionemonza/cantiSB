@@ -106,19 +106,26 @@
 
 <script>
 
-fetch("/cantiSB/config/config.txt?nocache=" + Date.now())
-  .then(response => response.text())
-  .then(text => {
-    const config = text.split(/\r?\n/);
+fetch("config/liturgie.json?nocache=" + Date.now())
+  .then(response => response.json())
+  .then(liturgieData => {
 
-    const cfg = parseConfigRiga1(config[0]);
+    const cfg = parseDataLiturgia(liturgieData.data);
 
-    if (isValida(cfg.giorno, cfg.mese, cfg.anno, cfg.ora, cfg.minuti)) {
-      crea_programma(config);
+    if (
+      isValida(
+        cfg.giorno,
+        cfg.mese,
+        cfg.anno,
+        cfg.ora,
+        cfg.minuti
+      )
+    ) {
+      crea_programma(liturgieData);
     }
   });
 
-function parseConfigRiga1(riga)
+function parseDataLiturgia(riga)
 {
     const parti = riga.toLowerCase().split(" ");
 
@@ -188,62 +195,48 @@ function isValida(giorno, mese, anno, ora, minuti)
     return false;
 }
 
-function normalizzaId(id)
+function crea_programma(liturgieData)
 {
-    id = id.trim().toUpperCase();
-
-    if (/^\d+$/.test(id))
-        return id.padStart(3,"0");
-
-    return id.replace(/\s+/g,"");
-}
-
-async function crea_programma(config)
-{
-    const liturgieData = await fetch("liturgie.json")
-        .then(r => r.json());
-
-    const titoliData = await fetch("titoli.json")
-        .then(r => r.json());
-
     document.getElementById("data_e_ora").innerHTML =
-        "<h3>Programma del<br>" + config[0] + "</h3>";
+        "<h3>Programma del<br>" +
+        liturgieData.data +
+        "</h3>";
 
     const liturgie = liturgieData.liturgie;
 
-    const mioArray = config[1].split(";");
-
     let html = "";
 
-for (let i = 0; i < 24; i++)
-{
-    const codice = mioArray[i].trim().toUpperCase();
+    const senzaPrefisso = [
+        "Kyrie Eleison",
+        "Gloria",
+        "Santo",
+        "Dossologia",
+        "Agnello di Dio"
+    ];
 
-    if (codice === "0")
-        continue;
+    for (let i = 0; i < liturgie.length; i++) {
 
-    if (codice.length > 3)
-        continue;
+        const liturgia = liturgie[i];
 
-    const canto = titoliData.canti.find(
-        c => normalizzaId(c.id) === normalizzaId(codice)
-    );
+        if (
+            !liturgia.canto ||
+            liturgia.canto.trim().length > 3
+        )
+            continue;
 
-    if (!canto)
-        continue;
-
-    const prefisso =
-        liturgieData.liturgie[i] === "Gloria"
+        const prefisso =
+            senzaPrefisso.includes(liturgia.momento)
             ? ""
-            : `${liturgieData.liturgie[i]}: `;
+            : `${liturgia.momento}: `;
 
-    html += `
-        <a href="liturgia.html?n=${i}">
-            ${prefisso}${canto.titolo}
-            (${codice})
-        </a>
-    `;
-}
+        html += `
+            <a href="liturgia.html?n=${i}">
+                ${prefisso}${liturgia.titolo}
+                (${liturgia.canto})
+            </a>
+        `;
+    }
+
     html +=
         '<div style="text-align:center;">' +
         '<img src="NextGen.png" style="height:100px">' +
@@ -273,7 +266,7 @@ function iniziale(titolo) {
         .toUpperCase();
 }
 
-fetch("titoli.json")
+fetch("config/titoli.json")
     .then(response => response.json())
     .then(data => {
 
