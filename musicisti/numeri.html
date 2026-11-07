@@ -65,7 +65,14 @@ body {
     color: white;
 }
 
+.tutti_i_canti a.mancante {
+    background-color: white;
+    color: black;
+    border: 1px solid #AA0000;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -96,131 +103,286 @@ body {
 
 <script>
 
-function normalizza(id) {
-
+function normalizza(id)
+{
     id = id.toUpperCase().trim();
 
-    if (id.startsWith("A")) {
-        return "A" + parseInt(id.substring(1), 10);
+    if (id.startsWith("A"))
+    {
+        return "A" + parseInt(
+            id.substring(1),
+            10
+        );
     }
 
     let m;
 
-    m = id.match(/^(\d+)\s+BIS$/);
-    if (m) return parseInt(m[1], 10) + ".2";
+    m = id.match(
+        /^(\d+)\s+BIS$/
+    );
+    if (m)
+        return parseInt(
+            m[1],
+            10
+        ) + ".2";
 
-    m = id.match(/^(\d+)\s+TER$/);
-    if (m) return parseInt(m[1], 10) + ".3";
+    m = id.match(
+        /^(\d+)\s+TER$/
+    );
+    if (m)
+        return parseInt(
+            m[1],
+            10
+        ) + ".3";
 
-    m = id.match(/^(\d+)\s+QUATER$/);
-    if (m) return parseInt(m[1], 10) + ".4";
+    m = id.match(
+        /^(\d+)\s+QUATER$/
+    );
+    if (m)
+        return parseInt(
+            m[1],
+            10
+        ) + ".4";
 
-    return String(parseInt(id, 10));
+    return String(
+        parseInt(id, 10)
+    );
 }
 
-function linkId(id) {
-
+function linkId(id)
+{
     return id
         .toUpperCase()
         .replace(/\s+/g, "");
 }
 
-function chiaveOrdinamento(id) {
-
+function chiaveOrdinamento(id)
+{
     id = id.toUpperCase().trim();
 
     let m;
 
-    m = id.match(/^(\d+)\s+BIS$/);
-    if (m) return parseInt(m[1], 10) + 0.2;
+    m = id.match(
+        /^(\d+)\s+BIS$/
+    );
+    if (m)
+        return parseInt(
+            m[1],
+            10
+        ) + 0.2;
 
-    m = id.match(/^(\d+)\s+TER$/);
-    if (m) return parseInt(m[1], 10) + 0.3;
+    m = id.match(
+        /^(\d+)\s+TER$/
+    );
+    if (m)
+        return parseInt(
+            m[1],
+            10
+        ) + 0.3;
 
-    m = id.match(/^(\d+)\s+QUATER$/);
-    if (m) return parseInt(m[1], 10) + 0.4;
+    m = id.match(
+        /^(\d+)\s+QUATER$/
+    );
+    if (m)
+        return parseInt(
+            m[1],
+            10
+        ) + 0.4;
 
-    m = id.match(/^(\d+)$/);
-    if (m) return parseInt(m[1], 10);
+    m = id.match(
+        /^(\d+)$/
+    );
+    if (m)
+        return parseInt(
+            m[1],
+            10
+        );
 
     return Number.MAX_SAFE_INTEGER;
 }
 
-fetch("../config/titoli.json")
-    .then(r => r.json())
-    .then(data => {
+function chiaveSpartito(id)
+{
+    id = id.trim().toUpperCase();
 
-        const numerici = document.getElementById("numerici");
-        const alfabetici = document.getElementById("alfabetici");
-
-        const idsNumerici = [];
-        const idsAlfabetici = [];
-
-        const visti = new Set();
-
-        data.canti.forEach(canto => {
-
-            const id = String(canto.id || "")
-                .trim()
-                .toUpperCase();
-
-            if (id.endsWith(".")) {
-                return;
-            }
-
-            if (visti.has(id)) {
-                return;
-            }
-
-            visti.add(id);
-
-            if (id.startsWith("A")) {
-                idsAlfabetici.push(id);
-            }
-            else {
-                idsNumerici.push(id);
-            }
-        });
-
-        idsNumerici.sort(
-            (a, b) => chiaveOrdinamento(a) - chiaveOrdinamento(b)
+    const lettera =
+        id.match(
+            /^([A-Z])\s*(\d+)$/
         );
 
-        idsAlfabetici.sort(
-            (a, b) => Number(a.substring(1)) - Number(b.substring(1))
+    if (lettera)
+    {
+        return (
+            lettera[1] +
+            lettera[2].padStart(
+                2,
+                "0"
+            )
+        );
+    }
+
+    if (/^\d+$/.test(id))
+    {
+        return id.padStart(
+            3,
+            "0"
+        );
+    }
+
+    return id.replace(
+        /\s+/g,
+        ""
+    );
+}
+
+Promise.all([
+    fetch("../config/titoli.json")
+        .then(r => r.json()),
+    fetch("elenco.json")
+        .then(r => r.json())
+])
+.then(([data, elenco]) =>
+{
+    const numerici =
+        document.getElementById(
+            "numerici"
         );
 
-        idsNumerici.forEach(id => {
+    const alfabetici =
+        document.getElementById(
+            "alfabetici"
+        );
 
-            const visualizzato = normalizza(id);
-            const link = linkId(id);
+    const idsNumerici = [];
+    const idsAlfabetici = [];
 
-            numerici.insertAdjacentHTML(
-                "beforeend",
-                `<a href="canto?n=${link}">${visualizzato}</a>`
+    const visti =
+        new Set();
+
+    data.canti.forEach(canto =>
+    {
+        const id =
+            String(
+                canto.id || ""
+            )
+            .trim()
+            .toUpperCase();
+
+        if (id.endsWith("."))
+        {
+            return;
+        }
+
+        if (visti.has(id))
+        {
+            return;
+        }
+
+        visti.add(id);
+
+        if (
+            id.startsWith("A")
+        )
+        {
+            idsAlfabetici.push(
+                id
             );
-        });
-
-        idsAlfabetici.forEach(id => {
-
-            const visualizzato = normalizza(id);
-            const link = linkId(id);
-
-            alfabetici.insertAdjacentHTML(
-                "beforeend",
-                `<a href="canto?n=${link}">${visualizzato}</a>`
+        }
+        else
+        {
+            idsNumerici.push(
+                id
             );
-        });
-
-    })
-    .catch(() => {
-
-        document.getElementById("numerici").innerHTML =
-            "<p>Errore nel caricamento dei dati.</p>";
-
+        }
     });
+
+    idsNumerici.sort(
+        (a, b) =>
+            chiaveOrdinamento(a)
+            -
+            chiaveOrdinamento(b)
+    );
+
+    idsAlfabetici.sort(
+        (a, b) =>
+            Number(
+                a.substring(1)
+            )
+            -
+            Number(
+                b.substring(1)
+            )
+    );
+
+    idsNumerici.forEach(id =>
+    {
+        const visualizzato =
+            normalizza(id);
+
+        const link =
+            linkId(id);
+
+        const disponibile =
+            !!elenco[
+                chiaveSpartito(id)
+            ];
+
+        numerici.insertAdjacentHTML(
+            "beforeend",
+            `
+            <a
+                class="${
+                    disponibile
+                        ? ""
+                        : "mancante"
+                }"
+                href="canto.html?n=${link}">
+                ${visualizzato}
+            </a>
+            `
+        );
+    });
+
+    idsAlfabetici.forEach(id =>
+    {
+        const visualizzato =
+            normalizza(id);
+
+        const link =
+            linkId(id);
+
+        const disponibile =
+            !!elenco[
+                chiaveSpartito(id)
+            ];
+
+        alfabetici.insertAdjacentHTML(
+            "beforeend",
+            `
+            <a
+                class="${
+                    disponibile
+                        ? ""
+                        : "mancante"
+                }"
+                href="canto.html?n=${link}">
+                ${visualizzato}
+            </a>
+            `
+        );
+    });
+
+})
+.catch(() =>
+{
+    document.getElementById(
+        "numerici"
+    ).innerHTML =
+        "<p>Errore nel caricamento dei dati.</p>";
+});
 
 </script>
 
 </body>
+
 </html>

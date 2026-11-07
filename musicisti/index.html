@@ -1,133 +1,196 @@
-
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <body>
-        <style> body {
-          font-family: Arial, sans-serif;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          font-size: 18px;
-          text-align: center;
-        }
-        .button-grid {
-          display: grid;
-          grid-template-columns: repeat(1, 1fr);
-          gap: 15px 20px;
-          width: 100%;
-          max-width: 320px;
-        }
-        .button-grid a {
-          display: block;
-          padding: 12px 6px;
-          text-align: center;
-          color: white;
-          background-color: #BF8F00;
-          text-decoration: none;
-          border-radius: 80px;
-          font-size: 16px;
-          font-weight: normal;
-        }
-        .button-grid a:hover {
-          background-color: #00b300;
-          color: white;
-        }
-        .tutti_i_canti {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 15px 20px;
-          width: 100%;
-          max-width: 320px;
-        }
-        .tutti_i_canti a {
-          display: block;
-          padding: 10px 6px;
-          text-align: center;
-          color: white;
-          background-color: #AA0000;
-          text-decoration: none;
-          border-radius: 112px;
-          font-size: 16px;
-          font-weight: normal;
-        }
-        .tutti_i_canti a:hover {
-          background-color: #00b300;
-          color: white;
-        }
-        .numeri {
-          display: grid;
-          grid-template-columns: repeat(1, 1fr);
-          gap: 115px 20px;
-          width: 100%;
-          max-width: 320px;
-        }
-        .numeri a {
-          display: block;
-          padding: 12px 6px;
-          text-align: center;
-          color: white;
-          background-color: #AA0000;
-          text-decoration: none;
-          border-radius: 80px;
-          font-size: 16px;
-          font-weight: normal;
-        }
-        .numeri a:hover {
-          background-color: #00b300;
-          color: white;
-        }
+<body>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 18px;
+    text-align: center;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.button-grid a {
+    display: block;
+    padding: 12px 6px;
+    text-align: center;
+    color: white;
+    background-color: #BF8F00;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.button-grid a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+.button-grid a.mancante {
+    background-color: white;
+    color: black;
+    border: 1px solid #BF8F00;
+}
+
+.tutti_i_canti {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.tutti_i_canti a {
+    display: block;
+    padding: 10px 6px;
+    text-align: center;
+    color: white;
+    background-color: #AA0000;
+    text-decoration: none;
+    border-radius: 112px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.tutti_i_canti a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+.numeri {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 115px 20px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.numeri a {
+    display: block;
+    padding: 12px 6px;
+    text-align: center;
+    color: white;
+    background-color: #AA0000;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.numeri a:hover {
+    background-color: #00b300;
+    color: white;
+}
 
 .a-disabled {
-  color: #A0A0A0 !important;
+    color: #A0A0A0 !important;
 }
 
 #textbox {
-  width: 310px;
-  margin: 0 auto;
-  border: 0px solid #FFFFFF;
-  padding: 0px;
-  box-sizing: border-box;
+    width: 310px;
+    margin: 0 auto;
+    border: 0px solid #FFFFFF;
+    padding: 0px;
+    box-sizing: border-box;
 }
 
 #controlloTesto {
-  text-align: left !important;
+    text-align: left !important;
 }
 
+</style>
 
-        </style>
 <meta charset="UTF-8">
-  <h2 style="color:#BF8F00">
-  Chiesa San Biagio<br>
-  Monza
-  </h2>
-  <div id="data_e_ora"></div>
-  <div class="button-grid" id="programma"></div>
-  <div id="contenuto"></div>
+
+<h2 style="color:#BF8F00">
+    Chiesa San Biagio<br>
+    Monza
+</h2>
+
+<div id="data_e_ora"></div>
+
+<div class="button-grid" id="programma"></div>
+
+<div id="contenuto"></div>
 
 <script>
 
-fetch("../config/liturgie.json?nocache=" + Date.now())
-  .then(response => response.json())
-  .then(liturgieData => {
-
-      crea_programma(liturgieData);
-  });
-
-
-function crea_programma(liturgieData)
+function codice(id)
 {
-    document.getElementById("data_e_ora").innerHTML =
+    if (!id) return "";
+
+    id = id.toUpperCase().trim();
+
+    const lettera =
+        id.match(/^([A-Z])\s*(\d+)$/);
+
+    if (lettera)
+    {
+        return (
+            lettera[1] +
+            lettera[2].padStart(2, "0")
+        );
+    }
+
+    if (/^\d+$/.test(id))
+    {
+        return id.padStart(3, "0");
+    }
+
+    return id.replace(/\s+/g, "");
+}
+
+Promise.all([
+    fetch("../config/liturgie.json?nocache=" + Date.now())
+        .then(r => r.json()),
+    fetch("elenco.json")
+        .then(r => r.json())
+])
+.then(([liturgieData, elenco]) =>
+{
+    crea_programma(
+        liturgieData,
+        elenco
+    );
+});
+
+function crea_programma(
+    liturgieData,
+    elenco
+)
+{
+    document.getElementById(
+        "data_e_ora"
+    ).innerHTML =
         "<h3>Programma del<br>" +
         liturgieData.data +
         "</h3>";
 
-    const liturgie = liturgieData.liturgie;
+    const liturgie =
+        liturgieData.liturgie;
 
     let html = "";
 
-    for (let i = 0; i < liturgie.length; i++) {
-
-        const liturgia = liturgie[i];
+    for (
+        let i = 0;
+        i < liturgie.length;
+        i++
+    )
+    {
+        const liturgia =
+            liturgie[i];
 
         if (!liturgia.canto)
             continue;
@@ -136,12 +199,27 @@ function crea_programma(liturgieData)
             `${liturgia.momento}: `;
 
         const numero =
-            liturgia.canto.trim().length <= 3
-                ? ` (${liturgia.canto})`
-                : "";
+            liturgia.canto
+                .trim()
+                .length <= 3
+                    ? ` (${liturgia.canto})`
+                    : "";
+
+        const disponibile =
+            !!elenco[
+                codice(
+                    liturgia.canto
+                )
+            ];
 
         html += `
-            <a href="liturgia.html?n=${i}">
+            <a
+                class="${
+                    disponibile
+                        ? ""
+                        : "mancante"
+                }"
+                href="liturgia.html?n=${i}">
                 ${prefisso}${liturgia.titolo}${numero}
             </a>
         `;
@@ -152,22 +230,35 @@ function crea_programma(liturgieData)
         '<img src="../NextGen.png" style="height:100px">' +
         '</div>';
 
-    document.getElementById("programma").innerHTML = html;
+    document.getElementById(
+        "programma"
+    ).innerHTML =
+        html;
 }
 
 </script>
-         
-          
 
-          <span style="color:#AA0000" font-family="Arial, sans-serif" display="flex" flex-direction="column" align-items="center" font-size="18px">
-          <h2>Canti in ordine alfabetico</h2></span>
+<span
+    style="color:#AA0000"
+    font-family="Arial, sans-serif"
+    display="flex"
+    flex-direction="column"
+    align-items="center"
+    font-size="18px">
 
+<h2>Canti in ordine alfabetico</h2>
 
-<div class="tutti_i_canti" id="tutti_i_canti"></div>
+</span>
+
+<div
+    class="tutti_i_canti"
+    id="tutti_i_canti">
+</div>
 
 <script>
 
-function iniziale(titolo) {
+function iniziale(titolo)
+{
     return titolo
         .trim()
         .charAt(0)
@@ -178,29 +269,56 @@ function iniziale(titolo) {
 
 fetch("../config/titoli.json")
     .then(response => response.json())
-    .then(data => {
+    .then(data =>
+    {
+        const canti =
+            data.canti.filter(
+                c =>
+                    c.id
+                        .trim()
+                        .length === 3
+            );
 
-        const canti = data.canti.filter(
-            c => c.id.trim().length === 3
-        );
+        const lettere =
+            [...new Set(
+                canti.map(c =>
+                    iniziale(
+                        c.titolo
+                    )
+                )
+            )]
+            .sort((a, b) =>
+                a.localeCompare(
+                    b,
+                    "it"
+                )
+            );
 
-        const lettere = [...new Set(
-            canti.map(c => iniziale(c.titolo))
-        )].sort((a, b) => a.localeCompare(b, "it"));
+        document.getElementById(
+            "tutti_i_canti"
+        ).innerHTML =
 
-        document.getElementById("tutti_i_canti").innerHTML =
-            lettere.map(lettera =>
-                `<a href="alfabetico.html?l=${encodeURIComponent(lettera)}">${lettera}</a>`
+            lettere.map(
+                lettera =>
+                `
+                <a href="alfabetico.html?l=${encodeURIComponent(lettera)}">
+                    ${lettera}
+                </a>
+                `
             ).join("");
     });
 
 </script>
 
-          <br>
-          <div class="numeri"><a href="numeri.html">Canti in ordine numerico</a></div>
-          <br>
+<br>
 
+<div class="numeri">
+    <a href="numeri.html">
+        Canti in ordine numerico
+    </a>
+</div>
 
+<br><br><br><br>
 
-  </body>
+</body>
 </html>

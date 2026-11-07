@@ -16,13 +16,46 @@ body {
     padding: 0;
 }
 
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+}
+
 #header {
     color: #BF8F00;
     font-weight: bold;
-    text-align: center;
-    width: 100%;
     font-size: 1.4em;
-    margin: 10px 0;
+    margin: 0;
+}
+
+#formati {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+#formati a {
+    display: block;
+    padding: 6px 12px;
+    text-align: center;
+    background-color: #BF8F00;
+    color: white;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+#formati a:hover {
+    background-color: #00b300;
+}
+
+#formati a.attivo {
+    background-color: #00b300;
 }
 
 #contenuto {
@@ -54,13 +87,23 @@ body {
     background-color: #00b300;
 }
 
+.button-grid a.attivo {
+    background-color: #00b300;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div id="header"></div>
+<div class="header-row">
+
+    <div id="header"></div>
+
+    <div id="formati"></div>
+
+</div>
 
 <div id="contenuto"></div>
 
@@ -126,29 +169,132 @@ fetch(
                     corrente.canto
                 );
 
-            let pdf =
-                elenco[chiave];
 
-            const usaAccordi =
-                localStorage.getItem(
-                    "accordi"
-                ) === "true";
+const formatoSalvato =
+    localStorage.getItem(
+        "formatoMusici"
+    ) || "spartito";
 
-            if (usaAccordi)
+const disponibileBase =
+    !!elenco[chiave];
+
+const disponibileAccordi =
+    !!elenco[chiave + "A"];
+
+const disponibileFlauto =
+    !!elenco[chiave + "F"];
+
+let pdf = null;
+let formatoAttivo = null;
+
+if (
+    formatoSalvato === "accordi" &&
+    disponibileAccordi
+)
+{
+    pdf = elenco[chiave + "A"];
+    formatoAttivo = "accordi";
+}
+else if (
+    formatoSalvato === "flauto" &&
+    disponibileFlauto
+)
+{
+    pdf = elenco[chiave + "F"];
+    formatoAttivo = "flauto";
+}
+else
+{
+    pdf = elenco[chiave];
+
+    if (
+        formatoSalvato === "spartito" &&
+        disponibileBase
+    )
+    {
+        formatoAttivo = "spartito";
+    }
+}
+
+const pulsanti = [];
+
+if (disponibileBase)
+{
+    pulsanti.push(
+        `<a
+            href="#"
+            data-formato="spartito"
+            class="${
+                formatoAttivo === "spartito"
+                    ? "attivo"
+                    : ""
+            }">
+            Spartito
+        </a>`
+    );
+}
+
+if (disponibileAccordi)
+{
+    pulsanti.push(
+        `<a
+            href="#"
+            data-formato="accordi"
+            class="${
+                formatoAttivo === "accordi"
+                    ? "attivo"
+                    : ""
+            }">
+            Accordi
+        </a>`
+    );
+}
+
+if (disponibileFlauto)
+{
+    pulsanti.push(
+        `<a
+            href="#"
+            data-formato="flauto"
+            class="${
+                formatoAttivo === "flauto"
+                    ? "attivo"
+                    : ""
+            }">
+            Flauto
+        </a>`
+    );
+}
+
+document.getElementById(
+    "formati"
+).innerHTML =
+    pulsanti.length > 1
+        ? pulsanti.join("")
+        : "";
+
+
+document
+    .querySelectorAll(
+        "#formati a"
+    )
+    .forEach(btn =>
+    {
+        btn.addEventListener(
+            "click",
+            e =>
             {
-                const chiaveAccordi =
-                    chiave + "A";
+                e.preventDefault();
 
-                if (
-                    elenco[chiaveAccordi]
-                )
-                {
-                    pdf =
-                        elenco[
-                            chiaveAccordi
-                        ];
-                }
+                localStorage.setItem(
+                    "formatoMusici",
+                    btn.dataset.formato
+                );
+
+                location.reload();
             }
+        );
+    });
 
             if (!pdf)
             {

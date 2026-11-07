@@ -16,30 +16,36 @@ body {
 }
 
 .button-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px 20px;
-  width: 100%;
-  max-width: 320px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 320px;
 }
 
 .button-grid a {
-  display: block;
-  padding: 12px 12px;
-  text-align: center;
-  color: white;
-  background-color: #AA0000;
-  text-decoration: none;
-  border-radius: 80px;
-  font-size: 16px;
-  font-weight: normal;
-  line-height: 1.35;
-  white-space: normal;
-  overflow-wrap: break-word;
+    display: block;
+    padding: 12px 12px;
+    text-align: center;
+    color: white;
+    background-color: #AA0000;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .button-grid a:hover {
     background-color: #00b300;
+}
+
+.button-grid a.mancante {
+    background-color: white;
+    color: black;
+    border: 1px solid #AA0000;
 }
 
 .naviga {
@@ -90,7 +96,8 @@ Monza
 
 <script>
 
-function iniziale(titolo) {
+function iniziale(titolo)
+{
     return titolo
         .trim()
         .charAt(0)
@@ -98,62 +105,6 @@ function iniziale(titolo) {
         .replace(/[\u0300-\u036f]/g, "")
         .toUpperCase();
 }
-
-const lettera =
-    (new URLSearchParams(location.search).get("l") || "A")
-    .toUpperCase();
-
-fetch("../config/titoli.json")
-    .then(r => r.json())
-    .then(data => {
-
-
-        const canti = data.canti
-//            .filter(c => c.id.trim().length === 3)
-            .sort((a, b) =>
-                chiaveOrdinamento(a.titolo)
-                    .localeCompare(
-                        chiaveOrdinamento(b.titolo),
-                        "it"
-                    )
-        );
-
-        const lettere = [...new Set(
-            canti.map(c => iniziale(c.titolo))
-        )];
-
-        const filtrati = canti.filter(
-            c => iniziale(c.titolo) === lettera
-        );
-
-        document.getElementById("titolo").innerHTML =
-            `Canti in ordine alfabetico<br><br>${lettera}`;
-
-        document.getElementById("elenco").innerHTML =
-            filtrati.map(c =>
-                `<a href="canto?n=${encodeURIComponent(c.id)}">
-                    ${c.id.replace(/^0+/, "")}. ${c.titolo}
-                </a>`
-            ).join("");
-
-        const posizione = lettere.indexOf(lettera);
-
-        const precedente =
-            posizione > 0
-                ? lettere[posizione - 1]
-                : "-";
-
-        const successiva =
-            posizione < lettere.length - 1
-                ? lettere[posizione + 1]
-                : "-";
-
-        document.getElementById("navigazione").innerHTML = `
-            <a href="${precedente === "-" ? "index.html" : `?l=${precedente}`}">${precedente}</a>
-            <a href="index.html">Indice</a>
-            <a href="${successiva === "-" ? "index.html" : `?l=${successiva}`}">${successiva}</a>
-        `;
-    });
 
 function chiaveOrdinamento(titolo)
 {
@@ -164,6 +115,135 @@ function chiaveOrdinamento(titolo)
         .toUpperCase();
 }
 
+function chiaveSpartito(id)
+{
+    id = id.trim().toUpperCase();
+
+    const lettera =
+        id.match(/^([A-Z])\s*(\d+)$/);
+
+    if (lettera)
+    {
+        return (
+            lettera[1] +
+            lettera[2].padStart(2, "0")
+        );
+    }
+
+    if (/^\d+$/.test(id))
+    {
+        return id.padStart(3, "0");
+    }
+
+    return id.replace(/\s+/g, "");
+}
+
+const lettera =
+    (
+        new URLSearchParams(
+            location.search
+        ).get("l")
+        || "A"
+    ).toUpperCase();
+
+Promise.all([
+    fetch("../config/titoli.json").then(r => r.json()),
+    fetch("elenco.json").then(r => r.json())
+])
+.then(([data, elenco]) =>
+{
+    const canti =
+        data.canti
+            .sort((a, b) =>
+                chiaveOrdinamento(a.titolo)
+                    .localeCompare(
+                        chiaveOrdinamento(b.titolo),
+                        "it"
+                    )
+            );
+
+    const lettere =
+        [...new Set(
+            canti.map(c =>
+                iniziale(c.titolo)
+            )
+        )];
+
+    const filtrati =
+        canti.filter(
+            c =>
+                iniziale(c.titolo)
+                === lettera
+        );
+
+    document.getElementById(
+        "titolo"
+    ).innerHTML =
+        `Canti in ordine alfabetico<br><br>${lettera}`;
+
+    document.getElementById(
+        "elenco"
+    ).innerHTML =
+
+        filtrati.map(c =>
+        {
+            const disponibile =
+                !!elenco[
+                    chiaveSpartito(
+                        c.id
+                    )
+                ];
+
+            return `
+                <a
+                    class="${
+                        disponibile
+                            ? ""
+                            : "mancante"
+                    }"
+                    href="canto.html?n=${encodeURIComponent(c.id)}">
+                    ${c.id.replace(/^0+/, "")}. ${c.titolo}
+                </a>
+            `;
+        }).join("");
+
+    const posizione =
+        lettere.indexOf(lettera);
+
+    const precedente =
+        posizione > 0
+            ? lettere[posizione - 1]
+            : "-";
+
+    const successiva =
+        posizione < lettere.length - 1
+            ? lettere[posizione + 1]
+            : "-";
+
+    document.getElementById(
+        "navigazione"
+    ).innerHTML = `
+        <a href="${
+            precedente === "-"
+                ? "index.html"
+                : `?l=${precedente}`
+        }">
+            ${precedente}
+        </a>
+
+        <a href="index.html">
+            Indice
+        </a>
+
+        <a href="${
+            successiva === "-"
+                ? "index.html"
+                : `?l=${successiva}`
+        }">
+            ${successiva}
+        </a>
+    `;
+});
 
 </script>
 

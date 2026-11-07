@@ -2,6 +2,7 @@
 <html lang="it">
 
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -10,69 +11,100 @@
 <style>
 
 html,
-body{
-    margin:0;
-    padding:0;
-    height:100%;
-    font-family:Arial,sans-serif;
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
 }
 
-body{
-    display:flex;
-    flex-direction:column;
+body {
+    display: flex;
+    flex-direction: column;
 }
 
-#titolo{
-    text-align:center;
-    padding:10px;
-    font-size:22px;
-    font-weight:bold;
-    background:#f5f5f5;
-    border-bottom:1px solid #ddd;
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
 }
 
-#viewer{
-    flex:1;
-    overflow:auto;
+#titolo {
+    color: #BF8F00;
+    font-weight: bold;
+    font-size: 1.4em;
 }
 
-#viewer iframe{
-    width:100%;
-    height:100%;
-    border:none;
+#formati {
+    display: flex;
+    gap: 5px;
+    align-items: center;
 }
 
-#viewer img{
-    display:block;
-    max-width:100%;
-    height:auto;
-    margin:auto;
+#formati a {
+    display: block;
+    padding: 6px 12px;
+    text-align: center;
+    background-color: #BF8F00;
+    color: white;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 14px;
+    font-weight: normal;
 }
 
-.button-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:5px 10px;
-    width:100%;
-    max-width:500px;
-    margin:10px auto;
+#formati a:hover {
+    background-color: #00b300;
 }
 
-.button-grid a{
-    display:block;
-    padding:12px 0;
-    text-align:center;
-    background-color:#BF8F00;
-    color:white;
-    text-decoration:none;
-    border-radius:80px;
-    font-size:16px;
-    font-weight:normal;
+#formati a.attivo {
+    background-color: #00b300;
 }
 
-.button-grid a:hover{
-    background-color:#00b300;
-    color:white;
+#viewer {
+    flex: 1;
+    overflow: auto;
+}
+
+#viewer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#viewer img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px 10px;
+    width: 100%;
+    max-width: 500px;
+    margin: 10px auto;
+}
+
+.button-grid a {
+    display: block;
+    padding: 12px 0;
+    text-align: center;
+    background-color: #BF8F00;
+    color: white;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.button-grid a:hover {
+    background-color: #00b300;
 }
 
 </style>
@@ -81,11 +113,13 @@ body{
 
 <body>
 
-<!--
-<div id="titolo">
-    TITOLO
+<div class="header-row">
+
+    <div id="titolo"></div>
+
+    <div id="formati"></div>
+
 </div>
--->
 
 <div id="viewer">
     Caricamento...
@@ -99,73 +133,216 @@ body{
 
 <script>
 
-const params = new URLSearchParams(window.location.search);
-let n = params.get("n");
+function codice(id)
+{
+    if (!id) return "";
 
-/*
- * FUTURO:
- * false = spartito principale
- * true = accordi
- */
-const usaAccordi = localStorage.getItem("accordi") === "true";
+    id = id.toUpperCase().trim();
 
-if (n) {
+    const lettera =
+        id.match(/^([A-Z])\s*(\d+)$/);
 
-    n = n.toUpperCase();
-
-    let chiave;
-
-    if (/^[A-Z]/.test(n)) {
-
-        const lettera = n.charAt(0);
-        const numero = n.substring(1).padStart(2, "0");
-
-        chiave = lettera + numero;
-
-    } else {
-
-        chiave = n.padStart(3, "0");
-
+    if (lettera)
+    {
+        return (
+            lettera[1] +
+            lettera[2].padStart(2, "0")
+        );
     }
 
-    chiave = chiave.replace(/ /g, "");
+    if (/^\d+$/.test(id))
+    {
+        return id.padStart(3, "0");
+    }
+
+    return id.replace(/\s+/g, "");
+}
+
+const params =
+    new URLSearchParams(window.location.search);
+
+let n =
+    params.get("n");
+
+if (!n)
+{
+    document.getElementById("viewer").innerHTML =
+        "<h2 style='text-align:center'>Nessun parametro ricevuto.</h2>";
+}
+else
+{
+    document.getElementById(
+        "titolo"
+    ).textContent =
+        n;
+
+    const chiave =
+        codice(n);
 
     fetch("../config/spartiti.json")
-
         .then(response => response.json())
+        .then(elenco =>
+        {
+            const formatoSalvato =
+                localStorage.getItem(
+                    "formatoMusici"
+                ) || "spartito";
 
-        .then(elenco => {
+            const disponibileBase =
+                !!elenco[chiave];
 
-        let pdf = elenco[chiave];
+            const disponibileAccordi =
+                !!elenco[chiave + "A"];
 
-        if (usaAccordi) {
+            const disponibileFlauto =
+                !!elenco[chiave + "F"];
 
-            const chiaveAccordi = chiave + "A";
+            let pdf = null;
+            let formatoAttivo = null;
 
-            if (elenco[chiaveAccordi]) {
+            if (
+                formatoSalvato === "accordi" &&
+                disponibileAccordi
+            )
+            {
+                pdf =
+                    elenco[chiave + "A"];
 
-                pdf = elenco[chiaveAccordi];
+                formatoAttivo =
+                    "accordi";
+            }
+            else if (
+                formatoSalvato === "flauto" &&
+                disponibileFlauto
+            )
+            {
+                pdf =
+                    elenco[chiave + "F"];
 
+                formatoAttivo =
+                    "flauto";
+            }
+            else
+            {
+                pdf =
+                    elenco[chiave];
+
+                if (
+                    formatoSalvato === "spartito" &&
+                    disponibileBase
+                )
+                {
+                    formatoAttivo =
+                        "spartito";
+                }
             }
 
-        }
+            const pulsanti = [];
 
-            if (!pdf) {
+            if (disponibileBase)
+            {
+                pulsanti.push(
+                    `<a
+                        href="#"
+                        data-formato="spartito"
+                        class="${
+                            formatoAttivo === "spartito"
+                            ? "attivo"
+                            : ""
+                        }">
+                        Spartito
+                    </a>`
+                );
+            }
 
-                document.getElementById("viewer").innerHTML =
-                    `<h2 style="text-align:center">Spartito non trovato (${chiave})</h2>`;
+            if (disponibileAccordi)
+            {
+                pulsanti.push(
+                    `<a
+                        href="#"
+                        data-formato="accordi"
+                        class="${
+                            formatoAttivo === "accordi"
+                            ? "attivo"
+                            : ""
+                        }">
+                        Accordi
+                    </a>`
+                );
+            }
+
+            if (disponibileFlauto)
+            {
+                pulsanti.push(
+                    `<a
+                        href="#"
+                        data-formato="flauto"
+                        class="${
+                            formatoAttivo === "flauto"
+                            ? "attivo"
+                            : ""
+                        }">
+                        Flauto
+                    </a>`
+                );
+            }
+
+            document.getElementById(
+                "formati"
+            ).innerHTML =
+                pulsanti.length > 1
+                    ? pulsanti.join("")
+                    : "";
+
+            document
+                .querySelectorAll(
+                    "#formati a"
+                )
+                .forEach(btn =>
+                {
+                    btn.addEventListener(
+                        "click",
+                        e =>
+                        {
+                            e.preventDefault();
+
+                            localStorage.setItem(
+                                "formatoMusici",
+                                btn.dataset.formato
+                            );
+
+                            location.reload();
+                        }
+                    );
+                });
+
+            if (!pdf)
+            {
+                document.getElementById(
+                    "viewer"
+                ).innerHTML =
+                    `<h2 style="text-align:center">
+                        Spartito non trovato (${chiave})
+                    </h2>`;
 
                 return;
-
             }
 
-            const viewer = document.getElementById("viewer");
+            const viewer =
+                document.getElementById(
+                    "viewer"
+                );
 
-            const url = pdf +
-                (pdf.includes("?") ? "&" : "?") +
-                "_t=" + Date.now();
+            const url =
+                pdf +
+                (pdf.includes("?")
+                    ? "&"
+                    : "?") +
+                "_t=" +
+                Date.now();
 
-            const percorsoPulito = pdf
+            const percorsoPulito =
+                pdf
                 .split("?")[0]
                 .toLowerCase();
 
@@ -174,39 +351,39 @@ if (n) {
                 percorsoPulito.endsWith(".jpeg") ||
                 percorsoPulito.endsWith(".png") ||
                 percorsoPulito.endsWith(".webp")
-            ) {
-
+            )
+            {
                 viewer.innerHTML =
-                    `<img src="${url}" alt="${chiave}">`;
-
-            } else {
-
-                const pdfUrl = new URL(pdf, window.location.href).href;
+                    `<img
+                        src="${url}"
+                        alt="${chiave}"
+                    >`;
+            }
+            else
+            {
+                const pdfUrl =
+                    new URL(
+                        pdf,
+                        window.location.href
+                    ).href;
 
                 viewer.innerHTML =
                     `<iframe
-                        src="/cantiSB/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}"
-                        style="width:100%;height:100%;border:none;">
-                     </iframe>`;
-
+                        src="/cantiSB/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}">
+                    </iframe>`;
             }
 
         })
 
-        .catch(error => {
-
+        .catch(error =>
+        {
             console.error(error);
 
-            document.getElementById("viewer").innerHTML =
-                "<h2 style='text-align:center'>Errore nel caricamento di elenco.json</h2>";
-
+            document.getElementById(
+                "viewer"
+            ).innerHTML =
+                "<h2 style='text-align:center'>Errore nel caricamento di spartiti.json</h2>";
         });
-
-} else {
-
-    document.getElementById("viewer").innerHTML =
-        "<h2 style='text-align:center'>Nessun parametro ricevuto.</h2>";
-
 }
 
 </script>
