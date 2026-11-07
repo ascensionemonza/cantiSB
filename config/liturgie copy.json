@@ -1,4 +1,4 @@
-{"data": "9 novembre 2026 ore 15:30", "liturgie": [
+{"data": "8 novembre 2026 ore 15:30", "liturgie": [
 {"momento":"Processione", "canto": null, "titolo": null},
 {"momento":"Ingresso", "canto": "50", "titolo": "Chiamati per nome"},
 {"momento":"Aspersione", "canto": null, "titolo": null},
@@ -13,7 +13,7 @@
 {"momento":"Cresime (4)", "canto": "151", "titolo": "Lo spirito del Signore"},
 {"momento":"Consegna Vangelo", "canto": null, "titolo": null},
 {"momento":"Offertorio", "canto": "59", "titolo": "Come fuoco vivo"},
-{"momento":"Santo", "canto": null, "titolo": null},
+{"momento":"Santo", "canto": "223 bis", "titolo": "Belli"},
 {"momento":"Dopo la Consacrazione", "canto": "45 bis", "titolo": "Annunciamo…"},
 {"momento":"Dossologia", "canto": "80 bis", "titolo": "3 Amen"},
 {"momento":"Consegna Padre Nostro", "canto": null, "titolo": null},
