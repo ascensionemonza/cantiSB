@@ -179,211 +179,158 @@ else
     const chiave =
         codice(n);
 
-    fetch("../config/spartiti.json")
-        .then(response => response.json())
-        .then(elenco =>
+fetch("elenco.json")
+    .then(response => response.json())
+    .then(elenco =>
+    {
+
+console.log("n =", n);
+console.log("chiave =", chiave);
+console.log("primo id =", elenco.spartiti[0].id);
+
+        const documenti =
+            elenco.spartiti.filter(
+                x => x.id === chiave
+            );
+
+        if (documenti.length === 0)
         {
-            const formatoSalvato =
-                localStorage.getItem(
-                    "formatoMusici"
-                ) || "spartito";
-
-            const disponibileBase =
-                !!elenco[chiave];
-
-            const disponibileAccordi =
-                !!elenco[chiave + "A"];
-
-            const disponibileFlauto =
-                !!elenco[chiave + "F"];
-
-            let pdf = null;
-            let formatoAttivo = null;
-
-            if (
-                formatoSalvato === "accordi" &&
-                disponibileAccordi
-            )
-            {
-                pdf =
-                    elenco[chiave + "A"];
-
-                formatoAttivo =
-                    "accordi";
-            }
-            else if (
-                formatoSalvato === "flauto" &&
-                disponibileFlauto
-            )
-            {
-                pdf =
-                    elenco[chiave + "F"];
-
-                formatoAttivo =
-                    "flauto";
-            }
-            else
-            {
-                pdf =
-                    elenco[chiave];
-
-                if (
-                    formatoSalvato === "spartito" &&
-                    disponibileBase
-                )
-                {
-                    formatoAttivo =
-                        "spartito";
-                }
-            }
-
-            const pulsanti = [];
-
-            if (disponibileBase)
-            {
-                pulsanti.push(
-                    `<a
-                        href="#"
-                        data-formato="spartito"
-                        class="${
-                            formatoAttivo === "spartito"
-                            ? "attivo"
-                            : ""
-                        }">
-                        Spartito
-                    </a>`
-                );
-            }
-
-            if (disponibileAccordi)
-            {
-                pulsanti.push(
-                    `<a
-                        href="#"
-                        data-formato="accordi"
-                        class="${
-                            formatoAttivo === "accordi"
-                            ? "attivo"
-                            : ""
-                        }">
-                        Accordi
-                    </a>`
-                );
-            }
-
-            if (disponibileFlauto)
-            {
-                pulsanti.push(
-                    `<a
-                        href="#"
-                        data-formato="flauto"
-                        class="${
-                            formatoAttivo === "flauto"
-                            ? "attivo"
-                            : ""
-                        }">
-                        Flauto
-                    </a>`
-                );
-            }
-
-            document.getElementById(
-                "formati"
-            ).innerHTML =
-                pulsanti.length > 1
-                    ? pulsanti.join("")
-                    : "";
-
-            document
-                .querySelectorAll(
-                    "#formati a"
-                )
-                .forEach(btn =>
-                {
-                    btn.addEventListener(
-                        "click",
-                        e =>
-                        {
-                            e.preventDefault();
-
-                            localStorage.setItem(
-                                "formatoMusici",
-                                btn.dataset.formato
-                            );
-
-                            location.reload();
-                        }
-                    );
-                });
-
-            if (!pdf)
-            {
-                document.getElementById(
-                    "viewer"
-                ).innerHTML =
-                    `<h2 style="text-align:center">
-                        Spartito non trovato (${chiave})
-                    </h2>`;
-
-                return;
-            }
-
-            const viewer =
-                document.getElementById(
-                    "viewer"
-                );
-
-            const url =
-                pdf +
-                (pdf.includes("?")
-                    ? "&"
-                    : "?") +
-                "_t=" +
-                Date.now();
-
-            const percorsoPulito =
-                pdf
-                .split("?")[0]
-                .toLowerCase();
-
-            if (
-                percorsoPulito.endsWith(".jpg") ||
-                percorsoPulito.endsWith(".jpeg") ||
-                percorsoPulito.endsWith(".png") ||
-                percorsoPulito.endsWith(".webp")
-            )
-            {
-                viewer.innerHTML =
-                    `<img
-                        src="${url}"
-                        alt="${chiave}"
-                    >`;
-            }
-            else
-            {
-                const pdfUrl =
-                    new URL(
-                        pdf,
-                        window.location.href
-                    ).href;
-
-                viewer.innerHTML =
-                    `<iframe
-                        src="/cantiSB/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}">
-                    </iframe>`;
-            }
-
-        })
-
-        .catch(error =>
-        {
-            console.error(error);
-
             document.getElementById(
                 "viewer"
             ).innerHTML =
-                "<h2 style='text-align:center'>Errore nel caricamento di spartiti.json</h2>";
-        });
+                `<h2 style="text-align:center">
+                    Spartito non trovato (${chiave})
+                </h2>`;
+
+            return;
+        }
+
+        const formatoSalvato =
+            localStorage.getItem(
+                "formatoMusici"
+            ) || "";
+
+        let documentoAttivo =
+            documenti.find(
+                x => x.tipo_file === formatoSalvato
+            );
+
+        if (!documentoAttivo)
+        {
+            documentoAttivo =
+                documenti.find(
+                    x => x.tipo_file === ""
+                ) || documenti[0];
+        }
+
+        const pulsanti = [];
+
+        if (documenti.length > 1)
+        {
+            documenti.forEach(doc =>
+            {
+                const etichetta =
+                    doc.tipo_file || "spartito";
+
+                pulsanti.push(
+                    `<a
+                        href="#"
+                        data-formato="${doc.tipo_file}"
+                        class="${
+                            doc === documentoAttivo
+                                ? "attivo"
+                                : ""
+                        }">
+                        ${etichetta}
+                    </a>`
+                );
+            });
+        }
+
+        document.getElementById(
+            "formati"
+        ).innerHTML =
+            pulsanti.join("");
+
+        document
+            .querySelectorAll(
+                "#formati a"
+            )
+            .forEach(btn =>
+            {
+                btn.addEventListener(
+                    "click",
+                    e =>
+                    {
+                        e.preventDefault();
+
+                        localStorage.setItem(
+                            "formatoMusici",
+                            btn.dataset.formato
+                        );
+
+                        location.reload();
+                    }
+                );
+            });
+
+        const pdf =
+            documentoAttivo.file;
+
+        const viewer =
+            document.getElementById(
+                "viewer"
+            );
+
+        const url =
+            pdf +
+            (pdf.includes("?")
+                ? "&"
+                : "?") +
+            "_t=" +
+            Date.now();
+
+        const percorsoPulito =
+            pdf
+                .split("?")[0]
+                .toLowerCase();
+
+        if (
+            percorsoPulito.endsWith(".jpg") ||
+            percorsoPulito.endsWith(".jpeg") ||
+            percorsoPulito.endsWith(".png") ||
+            percorsoPulito.endsWith(".webp")
+        )
+        {
+            viewer.innerHTML =
+                `<img
+                    src="${url}"
+                    alt="${chiave}"
+                >`;
+        }
+        else
+        {
+            const pdfUrl =
+                new URL(
+                    pdf,
+                    window.location.href
+                ).href;
+
+            viewer.innerHTML =
+                `<iframe
+                    src="/cantiSB/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}">
+                </iframe>`;
+        }
+    })
+    .catch(error =>
+    {
+        console.error(error);
+
+        document.getElementById(
+            "viewer"
+        ).innerHTML =
+            "<h2 style='text-align:center'>Errore nel caricamento di elenco.json</h2>";
+    });
 }
 
 </script>

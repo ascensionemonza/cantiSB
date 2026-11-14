@@ -152,6 +152,13 @@ Promise.all([
 ])
 .then(([data, elenco]) =>
 {
+    const idsDisponibili =
+        new Set(
+            elenco.spartiti.map(
+                x => x.id
+            )
+        );
+
     const canti =
         data.canti
             .sort((a, b) =>
@@ -188,11 +195,11 @@ Promise.all([
         filtrati.map(c =>
         {
             const disponibile =
-                !!elenco[
+                idsDisponibili.has(
                     chiaveSpartito(
                         c.id
                     )
-                ];
+                );
 
             return `
                 <a

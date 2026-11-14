@@ -170,109 +170,57 @@ fetch(
                 );
 
 
+const documenti =
+    elenco.spartiti.filter(
+        x => x.id === chiave
+    );
+
 const formatoSalvato =
     localStorage.getItem(
         "formatoMusici"
-    ) || "spartito";
+    ) || "";
 
-const disponibileBase =
-    !!elenco[chiave];
+let documentoAttivo =
+    documenti.find(
+        x => x.tipo_file === formatoSalvato
+    );
 
-const disponibileAccordi =
-    !!elenco[chiave + "A"];
-
-const disponibileFlauto =
-    !!elenco[chiave + "F"];
-
-let pdf = null;
-let formatoAttivo = null;
-
-if (
-    formatoSalvato === "accordi" &&
-    disponibileAccordi
-)
+if (!documentoAttivo)
 {
-    pdf = elenco[chiave + "A"];
-    formatoAttivo = "accordi";
-}
-else if (
-    formatoSalvato === "flauto" &&
-    disponibileFlauto
-)
-{
-    pdf = elenco[chiave + "F"];
-    formatoAttivo = "flauto";
-}
-else
-{
-    pdf = elenco[chiave];
-
-    if (
-        formatoSalvato === "spartito" &&
-        disponibileBase
-    )
-    {
-        formatoAttivo = "spartito";
-    }
+    documentoAttivo =
+        documenti.find(
+            x => x.tipo_file === ""
+        ) || documenti[0];
 }
 
 const pulsanti = [];
 
-if (disponibileBase)
+if (documenti.length > 1)
 {
-    pulsanti.push(
-        `<a
-            href="#"
-            data-formato="spartito"
-            class="${
-                formatoAttivo === "spartito"
-                    ? "attivo"
-                    : ""
-            }">
-            Spartito
-        </a>`
-    );
-}
+    documenti.forEach(doc =>
+    {
+        const etichetta =
+            doc.tipo_file || "spartito";
 
-if (disponibileAccordi)
-{
-    pulsanti.push(
-        `<a
-            href="#"
-            data-formato="accordi"
-            class="${
-                formatoAttivo === "accordi"
-                    ? "attivo"
-                    : ""
-            }">
-            Accordi
-        </a>`
-    );
-}
-
-if (disponibileFlauto)
-{
-    pulsanti.push(
-        `<a
-            href="#"
-            data-formato="flauto"
-            class="${
-                formatoAttivo === "flauto"
-                    ? "attivo"
-                    : ""
-            }">
-            Flauto
-        </a>`
-    );
+        pulsanti.push(
+            `<a
+                href="#"
+                data-formato="${doc.tipo_file}"
+                class="${
+                    doc === documentoAttivo
+                        ? "attivo"
+                        : ""
+                }">
+                ${etichetta}
+            </a>`
+        );
+    });
 }
 
 document.getElementById(
     "formati"
 ).innerHTML =
-    pulsanti.length > 1
-        ? pulsanti.join("")
-        : "";
-
+    pulsanti.join("");
 
 document
     .querySelectorAll(
@@ -295,6 +243,11 @@ document
             }
         );
     });
+
+const pdf =
+    documentoAttivo
+        ? documentoAttivo.file
+        : null;
 
             if (!pdf)
             {

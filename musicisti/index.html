@@ -181,6 +181,13 @@ function crea_programma(
     const liturgie =
         liturgieData.liturgie;
 
+    const idsDisponibili =
+        new Set(
+            elenco.spartiti.map(
+                x => x.id
+            )
+        );        
+
     let html = "";
 
     for (
@@ -206,11 +213,11 @@ function crea_programma(
                     : "";
 
         const disponibile =
-            !!elenco[
+            idsDisponibili.has(
                 codice(
                     liturgia.canto
                 )
-            ];
+            );
 
         html += `
             <a
