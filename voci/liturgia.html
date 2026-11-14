@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #BF8F00;
+    text-align: center;
+    width: 100%;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px 10px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.button-grid a {
+    display: block;
+    padding: 12px 6px;
+    text-align: center;
+    background-color: #BF8F00;
+    color: white;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+}
+
+.button-grid a:hover {
+    background-color: #00b300;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1 id="header"></h1>
+
+<div id="contenuto"></div>
+
+<br>
+
+<div id="footer" class="button-grid"></div>
+
+<script src="canto.js"></script>
+
+<script>
+
+const params =
+    new URLSearchParams(
+        location.search
+    );
+
+const indice =
+    parseInt(
+        params.get("n")
+    );
+
+fetch(
+    "../config/liturgie.json?nocache=" +
+    Date.now()
+)
+.then(r => r.json())
+.then(dati =>
+{
+    const liturgie =
+        dati.liturgie;
+
+    const corrente =
+        liturgie[indice];
+
+    if (
+        !corrente ||
+        !corrente.canto
+    )
+    {
+        location.href =
+            "index.html";
+
+        return;
+    }
+
+    document.getElementById(
+        "header"
+    ).textContent =
+        corrente.momento;
+
+    caricaCanto(
+        corrente.canto
+    );
+
+    let precedente = -1;
+
+    for (
+        let i = indice - 1;
+        i >= 0;
+        i--
+    )
+    {
+        if (liturgie[i].canto)
+        {
+            precedente = i;
+            break;
+        }
+    }
+
+    let successivo = -1;
+
+    for (
+        let i = indice + 1;
+        i < liturgie.length;
+        i++
+    )
+    {
+        if (liturgie[i].canto)
+        {
+            successivo = i;
+            break;
+        }
+    }
+
+    document.getElementById(
+        "footer"
+    ).innerHTML =
+
+        (precedente < 0
+
+            ? '<a href="index.html">-</a>'
+
+            : `<a href="liturgia.html?n=${precedente}">
+                   ${liturgie[precedente].momento}
+               </a>`)
+
+        +
+
+        '<a href="index.html">Indice</a>'
+
+        +
+
+        (successivo < 0
+
+            ? '<a href="index.html">-</a>'
+
+            : `<a href="liturgia.html?n=${successivo}">
+                   ${liturgie[successivo].momento}
+               </a>`);
+});
+
+</script>
+
+</body>
+</html>

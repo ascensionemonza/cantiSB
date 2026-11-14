@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+}
+
+#voci {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#contenuto {
+    width: 100%;
+}
+
+.pillola {
+    border: none;
+    border-radius: 999px;
+    background-color: #AA0000;
+    color: white;
+    padding: 8px 14px;
+    margin: 3px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.pillola:hover {
+    background-color: #00b300;
+}
+
+.pillola.attiva {
+    background-color: #66ff66;
+    color: #000;
+}
+
+#audioPlayer {
+    width: 100%;
+    margin: 5px 0 15px 0;
+    display: none;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px 10px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.button-grid a {
+    display: block;
+    padding: 12px 0;
+    text-align: center;
+    background-color: #BF8F00;
+    color: white;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.button-grid a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="voci"></div>
+
+<audio id="audioPlayer" controls></audio>
+
+<div id="contenuto"></div>
+
+<script src="canto.js"></script>
+
+<script>
+
+const n =
+    new URLSearchParams(
+        location.search
+    ).get("n");
+
+caricaCanto(n);
+
+caricaVoci(n);
+
+function caricaVoci(idCanto) {
+
+    fetch("voci.json")
+        .then(r => r.json())
+        .then(data => {
+
+            const contenitore =
+                document.getElementById("voci");
+
+            const player =
+                document.getElementById("audioPlayer");
+
+            const voci =
+                data.voci.filter(v =>
+                    String(v.id).toUpperCase() ===
+                    String(idCanto).toUpperCase()
+                );
+
+            if (voci.length === 0) {
+                return;
+            }
+
+            contenitore.innerHTML = "";
+
+            player.addEventListener("ended", () => {
+
+                document
+                    .querySelectorAll(".pillola")
+                    .forEach(p =>
+                        p.classList.remove("attiva")
+                    );
+
+            });
+
+            voci.forEach(v => {
+
+                const pillola =
+                    document.createElement("button");
+
+                pillola.className =
+                    "pillola";
+
+                pillola.textContent =
+                    v.voce || "audio";
+
+                pillola.onclick = () => {
+
+                    document
+                        .querySelectorAll(".pillola")
+                        .forEach(p =>
+                            p.classList.remove("attiva")
+                        );
+
+                    pillola.classList.add(
+                        "attiva"
+                    );
+
+                    player.src =
+                        v.titolo;
+
+                    player.style.display =
+                        "block";
+
+                    player.play();
+
+                };
+
+                contenitore.appendChild(
+                    pillola
+                );
+
+            });
+
+        })
+        .catch(err =>
+            console.error(err)
+        );
+
+}
+
+</script>
+
+<br><br>
+
+<div class="button-grid">
+    <a href="javascript:history.back()">Indietro</a>
+    <a href="index.html">Indice</a>
+    <a href="numeri.html">Indice numerico</a>
+</div>
+
+<br><br>
+
+</body>
+</html>

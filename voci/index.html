@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 18px;
+    text-align: center;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.button-grid a {
+    display: block;
+    padding: 12px 6px;
+    text-align: center;
+    color: white;
+    background-color: #BF8F00;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.button-grid a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+#audioCanti {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 320px;
+}
+
+#audioCanti a {
+    display: block;
+    padding: 10px 15px;
+    text-align: center;
+    color: white;
+    background-color: #AA0000;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+#audioCanti a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+
+
+</style>
+
+</head>
+
+<body>
+
+<h2 style="color:#BF8F00">
+Chiesa San Biagio<br>
+Monza
+</h2>
+
+<h2 style="color:#AA0000">
+Canti con basi vocali
+</h2>
+
+<div id="audioCanti"></div>
+
+<br><br>
+
+<div class="button-grid">
+    <a href="numeri.html">
+        Canti in ordine numerico
+    </a>
+</div>
+
+<script>
+
+function normalizzaId(id) {
+
+    id = String(id)
+        .trim()
+        .toUpperCase();
+
+    let m;
+
+    m = id.match(/^A0*(\d+)$/);
+    if (m) {
+        return "A" + Number(m[1]);
+    }
+
+    m = id.match(/^0*(\d+)$/);
+    if (m) {
+        return String(Number(m[1]));
+    }
+
+    m = id.match(/^0*(\d+)BIS$/);
+    if (m) {
+        return Number(m[1]) + " BIS";
+    }
+
+    m = id.match(/^0*(\d+)TER$/);
+    if (m) {
+        return Number(m[1]) + " TER";
+    }
+
+    m = id.match(/^0*(\d+)QUATER$/);
+    if (m) {
+        return Number(m[1]) + " QUATER";
+    }
+
+    return id;
+}
+
+function visualizzaId(id) {
+
+    id = String(id).toUpperCase();
+
+    let m;
+
+    m = id.match(/^(\d+)BIS$/);
+    if (m) return m[1] + " bis";
+
+    m = id.match(/^(\d+)TER$/);
+    if (m) return m[1] + " ter";
+
+    m = id.match(/^(\d+)QUATER$/);
+    if (m) return m[1] + " quater";
+
+    m = id.match(/^A0*(\d+)$/);
+    if (m) return "A" + Number(m[1]);
+
+    m = id.match(/^0*(\d+)$/);
+    if (m) return String(Number(m[1]));
+
+    return id;
+}
+
+fetch("voci.json")
+    .then(r => r.json())
+    .then(vociData => {
+
+        const idsAudio =
+            [...new Set(
+                vociData.voci.map(v =>
+                    String(v.id).trim()
+                )
+            )];
+
+        return fetch("../config/titoli.json")
+            .then(r => r.json())
+            .then(titoliData => {
+
+                const mappaTitoli =
+                    new Map();
+
+                titoliData.canti.forEach(c => {
+
+                    const chiave =
+                        normalizzaId(c.id);
+
+                    if (!mappaTitoli.has(chiave)) {
+
+                        mappaTitoli.set(
+                            chiave,
+                            c.titolo
+                        );
+
+                    }
+
+                });
+
+                const elenco = [];
+
+                idsAudio.forEach(id => {
+
+                    const chiave =
+                        normalizzaId(id);
+
+                    const titolo =
+                        mappaTitoli.get(chiave);
+
+                    if (titolo) {
+
+                        elenco.push({
+                            id,
+                            titolo
+                        });
+
+                    }
+
+                });
+
+                elenco.sort((a, b) =>
+                    a.titolo.localeCompare(
+                        b.titolo,
+                        "it"
+                    )
+                );
+
+                document.getElementById(
+                    "audioCanti"
+                ).innerHTML =
+
+                    elenco.map(canto =>
+
+                        `<a href="canto.html?n=${encodeURIComponent(canto.id)}">
+                            ${visualizzaId(canto.id)}. ${canto.titolo}
+                        </a>`
+
+                    ).join("");
+
+            });
+
+    })
+    .catch(() => {
+
+        document.getElementById(
+            "audioCanti"
+        ).innerHTML =
+            "<p>Errore nel caricamento dei dati.</p>";
+
+    });
+
+</script>
+
+</body>
+
+</html>

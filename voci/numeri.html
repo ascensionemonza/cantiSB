@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 18px;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 115px 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.button-grid a {
+    display: block;
+    padding: 12px 6px;
+    text-align: center;
+    color: white;
+    background-color: #BF8F00;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.button-grid a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+.tutti_i_canti {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.tutti_i_canti a {
+    display: block;
+    padding: 10px 6px;
+    text-align: center;
+    color: white;
+    background-color: #AA0000;
+    text-decoration: none;
+    border-radius: 112px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.tutti_i_canti a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+</style>
+</head>
+
+<body>
+
+<center>
+
+<span style="color:#BF8F00">
+<h2>Chiesa San Biagio<br>Monza</h2>
+</span>
+
+<span style="color:#AA0000">
+<h2>Canti in ordine numerico</h2>
+</span>
+
+<div class="tutti_i_canti" id="numerici"></div>
+
+<br><br>
+
+<div class="tutti_i_canti" id="alfabetici"></div>
+
+<br><br>
+
+<div class="button-grid">
+    <a href="index">Indice</a>
+</div>
+
+</center>
+
+<script>
+
+function normalizza(id) {
+
+    id = id.toUpperCase().trim();
+
+    if (id.startsWith("A")) {
+        return "A" + parseInt(id.substring(1), 10);
+    }
+
+    let m;
+
+    m = id.match(/^(\d+)BIS$/);
+    if (m) return parseInt(m[1], 10) + ".2";
+
+    m = id.match(/^(\d+)TER$/);
+    if (m) return parseInt(m[1], 10) + ".3";
+
+    m = id.match(/^(\d+)QUATER$/);
+    if (m) return parseInt(m[1], 10) + ".4";
+
+    return String(parseInt(id, 10));
+}
+
+function linkId(id) {
+
+    return id
+        .toUpperCase()
+        .replace(/\s+/g, "");
+
+}
+
+function chiaveOrdinamento(id) {
+
+    id = id.toUpperCase().trim();
+
+    let m;
+
+    m = id.match(/^(\d+)BIS$/);
+    if (m) return parseInt(m[1], 10) + 0.2;
+
+    m = id.match(/^(\d+)TER$/);
+    if (m) return parseInt(m[1], 10) + 0.3;
+
+    m = id.match(/^(\d+)QUATER$/);
+    if (m) return parseInt(m[1], 10) + 0.4;
+
+    m = id.match(/^(\d+)$/);
+    if (m) return parseInt(m[1], 10);
+
+    return Number.MAX_SAFE_INTEGER;
+}
+
+fetch("voci.json")
+    .then(r => r.json())
+    .then(data => {
+
+        const numerici = document.getElementById("numerici");
+        const alfabetici = document.getElementById("alfabetici");
+
+        const idsNumerici = [];
+        const idsAlfabetici = [];
+
+        const visti = new Set();
+
+        data.voci.forEach(voce => {
+
+            const id = String(voce.id || "")
+                .trim()
+                .toUpperCase();
+
+            if (!id || visti.has(id)) {
+                return;
+            }
+
+            visti.add(id);
+
+            if (id.startsWith("A")) {
+                idsAlfabetici.push(id);
+            } else {
+                idsNumerici.push(id);
+            }
+
+        });
+
+        idsNumerici.sort(
+            (a, b) => chiaveOrdinamento(a) - chiaveOrdinamento(b)
+        );
+
+        idsAlfabetici.sort(
+            (a, b) => Number(a.substring(1)) - Number(b.substring(1))
+        );
+
+        idsNumerici.forEach(id => {
+
+            const visualizzato = normalizza(id);
+            const link = linkId(id);
+
+            numerici.insertAdjacentHTML(
+                "beforeend",
+                `<a href="canto?n=${link}">${visualizzato}</a>`
+            );
+
+        });
+
+        idsAlfabetici.forEach(id => {
+
+            const visualizzato = normalizza(id);
+            const link = linkId(id);
+
+            alfabetici.insertAdjacentHTML(
+                "beforeend",
+                `<a href="canto?n=${link}">${visualizzato}</a>`
+            );
+
+        });
+
+    })
+    .catch(() => {
+
+        document.getElementById("numerici").innerHTML =
+            "<p>Errore nel caricamento dei dati.</p>";
+
+    });
+
+</script>
+
+</body>
+</html>
