@@ -119,5 +119,10 @@
 { "id": "273", "voce": "contralti", "titolo": "audio/Verremo a Te - contralti.m4a" },
 { "id": "273", "voce": "finale contralti", "titolo": "audio/Verremo a Te - finale - contralti.m4a" },
 { "id": "273", "voce": "finale uomini", "titolo": "audio/Verremo a Te - finale - uomini.m4a" },
-{ "id": "273", "voce": "uomini", "titolo": "audio/Verremo a Te - uomini.m4a" }
+{ "id": "273", "voce": "uomini", "titolo": "audio/Verremo a Te - uomini.m4a" },
+{ "id": "A13", "voce": "soprani", "titolo": "audio/Jesu rex admirabilis - soprani.m4a.mp4" },
+{ "id": "A13", "voce": "contralti", "titolo": "audio/Jesu rex admirabilis - contralti.m4a.mp4" },
+{ "id": "A13", "voce": "uomini", "titolo": "audio/Jesu rex admirabilis - uomini.m4a.mp4" },
+{ "id": "A13", "voce": "soprani e uomini", "titolo": "audio/Jesu rex admirabilis - soprani e uomini.m4a.mp4" },
+{ "id": "A13", "voce": "contralti e uomini", "titolo": "audio/Jesu rex admirabilis - uomini e contralti.m4a.mp4" }
 ]}
