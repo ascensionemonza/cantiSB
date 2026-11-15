@@ -66,7 +66,7 @@ function mostraVoce(voce)
     document
         .querySelectorAll(".voceBox a")
         .forEach(btn =>
-            btn.classList.remove("attivo"));
+            btn.classList.remove("attiva"));
 
     const btnAttivo =
         document.querySelector(
@@ -75,7 +75,7 @@ function mostraVoce(voce)
 
     if (btnAttivo)
     {
-        btnAttivo.classList.add("attivo");
+        btnAttivo.classList.add("attiva");
     }
 }
 
@@ -170,6 +170,8 @@ async function caricaCanto(id)
 
     const nomeFile =
         codice(id);
+
+    window.idCantoCorrente = nomeFile;
 
     const file =
         "../canti/" +
@@ -354,10 +356,245 @@ async function caricaCanto(id)
             });
         }
 
+        inizializzaVistaCorista();
+
     }
     catch
     {
         container.innerHTML =
             "<h2>Canto non trovato</h2>";
+    }
+}
+
+async function inizializzaVistaCorista()
+{
+    const btnTesto =
+        document.getElementById("btnTesto");
+
+    const btnSpartito =
+        document.getElementById("btnSpartito");
+
+    if (!btnTesto || !btnSpartito)
+    {
+        return;
+    }
+
+    btnTesto.onclick = () =>
+    {
+        localStorage.setItem(
+            "vistaCorista",
+            "testo"
+        );
+
+        mostraVistaTesto();
+    };
+
+    btnSpartito.onclick = () =>
+    {
+        localStorage.setItem(
+            "vistaCorista",
+            "spartito"
+        );
+
+        mostraVistaSpartito();
+    };
+
+    const vista =
+        localStorage.getItem(
+            "vistaCorista"
+        ) || "testo";
+
+    if (vista === "spartito")
+    {
+        await mostraVistaSpartito();
+    }
+    else
+    {
+        mostraVistaTesto();
+    }
+}
+
+function mostraVistaTesto()
+{
+    const contenuto =
+        document.getElementById(
+            "contenuto"
+        );
+
+    const spartito =
+        document.getElementById(
+            "spartitoContainer"
+        );
+
+    const btnTesto =
+        document.getElementById(
+            "btnTesto"
+        );
+
+    const btnSpartito =
+        document.getElementById(
+            "btnSpartito"
+        );
+
+    contenuto.style.display =
+        "block";
+
+    spartito.style.display =
+        "none";
+
+    btnTesto.classList.add(
+        "attiva"
+    );
+
+    btnSpartito.classList.remove(
+        "attiva"
+    );
+}
+
+async function mostraVistaSpartito()
+{
+    const contenuto =
+        document.getElementById(
+            "contenuto"
+        );
+
+    const spartito =
+        document.getElementById(
+            "spartitoContainer"
+        );
+
+    const btnTesto =
+        document.getElementById(
+            "btnTesto"
+        );
+
+    const btnSpartito =
+        document.getElementById(
+            "btnSpartito"
+        );
+
+    contenuto.style.display =
+        "none";
+
+    spartito.style.display =
+        "block";
+
+    btnSpartito.classList.add(
+        "attiva"
+    );
+
+    btnTesto.classList.remove(
+        "attiva"
+    );
+
+    if (
+        spartito.dataset.caricato ===
+        window.idCantoCorrente
+    )
+    {
+        return;
+    }
+
+    spartito.innerHTML =
+        "Caricamento spartito...";
+
+    try
+    {
+        const risposta =
+            await fetch(
+                "../../musicisti/elenco.json"
+            );
+
+        const elenco =
+            await risposta.json();
+
+        const documenti =
+            elenco.spartiti.filter(
+                x =>
+                    x.id ===
+                    window.idCantoCorrente
+            );
+
+        if (documenti.length === 0)
+        {
+            spartito.innerHTML =
+                "<h2>Spartito non disponibile</h2>";
+            return;
+        }
+
+        let documento =
+
+            documenti.find(
+                x =>
+                    x.tipo_file ===
+                    "coro"
+            )
+
+            ||
+
+            documenti.find(
+                x =>
+                    x.tipo_file ===
+                    "spartito"
+            )
+
+            ||
+
+            documenti.find(
+                x =>
+                    x.tipo_file ===
+                    ""
+            )
+
+            ||
+
+            documenti[0];
+
+        const file =
+            "../../musicisti/" +
+            documento.file;
+
+        spartito.dataset.caricato =
+            window.idCantoCorrente;
+
+        const path =
+            file.toLowerCase();
+
+        if (
+            path.endsWith(".jpg")
+            ||
+            path.endsWith(".jpeg")
+            ||
+            path.endsWith(".png")
+            ||
+            path.endsWith(".webp")
+        )
+        {
+            spartito.innerHTML =
+                `<img
+                    src="${file}"
+                    alt="Spartito"
+                >`;
+        }
+        else
+        {
+            const pdfUrl =
+                new URL(
+                    file,
+                    window.location.href
+                ).href;
+
+            spartito.innerHTML =
+                `<iframe
+                    src="/cantiSB/pdfjs/web/viewer.html?file=${encodeURIComponent(pdfUrl)}">
+                </iframe>`;
+        }
+    }
+    catch (errore)
+    {
+        console.error(errore);
+
+        spartito.innerHTML =
+            "<h2>Errore caricamento spartito</h2>";
     }
 }
