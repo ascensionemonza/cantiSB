@@ -172,7 +172,7 @@ async function caricaCanto(id)
         codice(id);
 
     const file =
-        "../nextgen/canti/" +
+        "../canti/" +
         nomeFile +
         ".html";
 
