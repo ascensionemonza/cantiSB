@@ -358,6 +358,7 @@
 {"id": "NULL", "tipo_file": "", "file": "spartiti/Santo.pdf"},
 {"id": "NULL", "tipo_file": "", "file": "spartiti/Tu sei l'offerta.pdf"},
 {"id": "NULL", "tipo_file": "", "file": "spartiti/Tuo è il regno.pdf"},
-{"id": "A03", "tipo_file": "4 voci", "file": "spartiti/Verbum panis 4 voci.pdf"},
-{"id": "A03", "tipo_file": "solo voce", "file": "spartiti/Verbum panis solo voce.pdf"}
+{"id": "A03", "tipo_file": "coro", "file": "spartiti/Verbum panis 4 voci.pdf"},
+{"id": "A03", "tipo_file": "solo voce", "file": "spartiti/Verbum panis solo voce.pdf"},
+{"id": "A13", "tipo_file": "spartito", "file": "spartiti/A13 - Jesus rex admirabilis.pdf"}
 ]}
