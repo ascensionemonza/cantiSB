@@ -46,6 +46,58 @@ h1 {
     background-color: #00b300;
 }
 
+#contenuto {
+    width: 100%;
+}
+
+#spartitoContainer {
+    width: 100%;
+}
+
+#spartitoContainer iframe {
+    width: 100%;
+    height: 90vh;
+    border: none;
+}
+
+#spartitoContainer img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+
+.vista-grid {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+}
+
+.vista-grid a {
+    display: inline-block;
+    padding: 6px 12px;
+    text-align: center;
+    background-color: #BF8F00;
+    color: white;
+    text-decoration: none;
+    border-radius: 80px;
+    font-size: 14px;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.vista-grid a:hover {
+    background-color: #00b300;
+    color: white;
+}
+
+.vista-grid a.attivo {
+    background-color: #00b300;
+    color: white;
+}
+
+
 </style>
 
 </head>
@@ -54,7 +106,21 @@ h1 {
 
 <h1 id="header"></h1>
 
+<div id="vistaBox" style="display:none">
+    <div class="vista-grid">
+        <a id="btnTesto">Testo</a>
+        <a id="btnSpartito">Spartito</a>
+    </div>
+    <br>
+</div>
+
 <div id="contenuto"></div>
+
+<br><br>
+
+<div id="spartitoContainer" style="display:none"></div>
+
+<br><br>
 
 <br>
 
