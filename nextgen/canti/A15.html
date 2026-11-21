@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 20px;
+}
+
+/* --- BOTTONI DELLE VOCI --- */
+
+.voceBox {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+
+.voceBox a {
+    display: block;
+    padding: 10px 6px;
+    text-align: center;
+    font-style: italic;
+    color: #00b300; /* rosso scuro */
+    border: 2px solid #00b300;
+    text-decoration: none;
+    border-radius: 112px; /* molto arrotondato */
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.voceBox a:hover {
+    background-color: #BF8F00; /* verde */
+    color: white;
+}
+.voceBox a.attivo {
+    color: black;
+    font-style: normal;
+    border: 2px solid #BF8F00;
+}  
+/* --- SEZIONI DELLE VOCI --- */
+
+.voce {
+    display: none; /* tutte nascoste di default */
+    margin-top: 30px;
+}
+
+.voce h2 {
+    margin-bottom: 10px;
+}
+
+.testo-voce {
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.nero { color: black; }
+.verde { color: #00b300; font-style: italic; }
+
+</style>
+
+</head>
+<body>
+
+
+<h2>
+A15. L’alba di un giorno diverso 
+</h2>
+<!-- BOTTONI DELLE 4 VOCI -->
+<div class="voceBox">
+    <a data-voce="soprani" onclick="selezionaVoce('soprani')">Soprani</a>
+    <a data-voce="contralti" onclick="selezionaVoce('contralti')">Contralti</a>
+    <a data-voce="tenori" onclick="selezionaVoce('tenori')">Tenori</a>
+    <a data-voce="bassi" onclick="selezionaVoce('bassi')">Bassi</a>
+</div>
+
+
+
+<!-- SOPRANI -->
+<div id="soprani" class="voce">
+
+
+    <ol>
+    <li>
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.
+    <br>
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.
+    <br>
+    </li>
+    <br>
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo.<br>
+    </b>
+    <br>
+
+    <li><span class="verde">
+        Guadate le stelle nel cielo raccontano cose che han visto per voi.
+    <br> 
+        Han visto negli occhi di un bimbo un mondo diverso ed io so perché.
+    <br> </span>
+    </li>
+    <br>
+
+    <li>
+        Ma voi non andate lontano, il luogo è vicino, vi dico, è già qui:
+    <br> 
+        la luce che illumina gli occhi dei vostri bambini è quella dei suoi.
+    <br> 
+    </li>
+    <br>
+
+
+
+    <li>
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.
+    <br> 
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.
+    <br> 
+    </li>
+    <br>
+
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo...<br>
+        <span class="verde">fino a quando verrà.</span>
+    </b>
+
+
+    </ol>
+
+</div>
+
+
+
+
+<!-- CONTRALTI -->
+<div id="contralti" class="voce">
+
+
+    <ol>
+    <li><span class="verde">
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.</span>
+    <br>
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.
+    <br>
+    </li>
+    <br>
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo.<br>
+    </b>
+    <br>
+
+    <li><span class="verde">
+        Guadate le stelle nel cielo raccontano cose che han visto per voi.
+    <br> 
+        Han visto negli occhi di un bimbo un mondo diverso ed io so perché.
+    <br> 
+    </li>
+    <br>
+
+    <li>
+        Ma voi non andate lontano, il luogo è vicino, vi dico, è già qui:
+    <br> 
+        la luce che illumina gli occhi dei vostri bambini è quella dei suoi.</span>
+    <br> 
+    </li>
+    <br>
+
+
+
+    <li><span class="verde">
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.</span>
+    <br> 
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.
+    <br> 
+    </li>
+    <br>
+
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo...<br>
+        fino a quando verrà.
+    </b>
+
+
+    </ol>
+
+</div>
+
+
+
+
+
+<!-- TENORI -->
+<div id="tenori" class="voce">
+
+
+    <ol>
+    <li><span class="verde">
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.</span>
+    <br>
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.
+    <br>
+    </li>
+    <br>
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo.<br>
+    </b>
+    <br>
+
+    <li>
+        Guadate le stelle nel cielo raccontano cose che han visto per voi.
+    <br> 
+        Han visto negli occhi di un bimbo un mondo diverso ed io so perché.
+    <br> 
+    </li>
+    <br>
+
+    <li><span class="verde">
+        Ma voi non andate lontano, il luogo è vicino, vi dico, è già qui:
+    <br> 
+        la luce che illumina gli occhi dei vostri bambini è quella dei suoi.
+    <br> </span>
+    </li>
+    <br>
+
+
+
+    <li><span class="verde">
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.
+    <br> </span>
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.
+    <br> 
+    </li>
+    <br>
+
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo...<br>
+        <span class="verde">fino a quando verrà.</span>
+    </b>
+
+
+    </ol>
+
+</div>
+
+
+
+
+
+<!-- BASSI -->
+<div id="bassi" class="voce">
+
+
+    <ol>
+    <li><span class="verde">
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.
+    <br></span>
+        L’alba di un giorno diverso Tu sei, ora che ho visto i tuoi occhi nei miei,
+    <br>
+        io non ho nulla che Tu non mi dai: sei tutto quello che ho.
+    <br>
+    </li>
+    <br>
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo.<br>
+    </b>
+    <br>
+
+    <li>
+        Guadate le stelle nel cielo raccontano cose che han visto per voi.
+    <br> 
+        Han visto negli occhi di un bimbo un mondo diverso ed io so perché.
+    <br>
+    </li>
+    <br>
+
+    <li><span class="verde">
+        Ma voi non andate lontano, il luogo è vicino, vi dico, è già qui:
+    <br> 
+        la luce che illumina gli occhi dei vostri bambini è quella dei suoi.
+    <br> </span>
+    </li>
+    <br>
+
+
+
+    <li><span class="verde">
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.
+    <br> </span>
+        L’alba di un giorno diverso verrà e avrà la luce degli occhi che hai,
+    <br> 
+        quando ogni pianto svanito sarà, sciolto al sorriso di Dio.
+    <br> 
+    </li>
+    <br>
+
+
+    <b>
+        Gioia nei cieli e pace nel mondo, egli è venuto, insieme cantiamo...<br>
+        fino a quando verrà.
+    </b>
+
+
+    </ol>
+
+</div>
+
+
+
+<script>
+function mostraVoce(voce) {
+
+    // Nascondi tutte le sezioni
+    document.getElementById('soprani').style.display = 'none';
+    document.getElementById('contralti').style.display = 'none';
+    document.getElementById('tenori').style.display = 'none';
+    document.getElementById('bassi').style.display = 'none';
+
+    // Mostra quella selezionata
+    document.getElementById(voce).style.display = 'block';
+
+    // Evidenziazione bottoni
+    document.querySelectorAll(".voceBox a").forEach(btn => {
+        btn.classList.remove("attivo");
+    });
+
+    // Aggiungi classe al bottone attivo
+    const btnAttivo = document.querySelector(`.voceBox a[onclick="selezionaVoce('${voce}')"]`);
+    if (btnAttivo) btnAttivo.classList.add("attivo");
+}
+
+function selezionaVoce(voce) {
+    localStorage.setItem('vocePreferita', voce);
+    mostraVoce(voce);
+}
+
+window.onload = function() {
+    let voceSalvata = localStorage.getItem('vocePreferita');
+    if (voceSalvata) mostraVoce(voceSalvata);
+};
+</script>
+
+</body>
+</html>
