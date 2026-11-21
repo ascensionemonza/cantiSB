@@ -111,6 +111,7 @@ function chiaveOrdinamento(titolo)
     return titolo
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
+        .replace(/'/g, " ")
         .replace(/[^A-Za-z0-9 ]/g, "")
         .toUpperCase();
 }
