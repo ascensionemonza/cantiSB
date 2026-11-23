@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    height:100vh;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    font-family: Arial, sans-serif;
+}
+
+.quadrante{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:3rem;
+    font-weight:bold;
+    color:white;
+    text-decoration:none;
+    transition:0.3s;
+}
+
+.quadrante:hover{
+    filter:brightness(1.2);
+}
+
+#uno{
+    background:#e74c3c;
+}
+
+#due{
+    background:#3498db;
+}
+
+#tre{
+    background:#2ecc71;
+}
+
+#quattro{
+    background:#f39c12;
+}
+</style>
+</head>
+
+<body>
+
+<a id="uno" class="quadrante" href="index.html">
+    Assemblea
+</a>
+
+<a id="due" class="quadrante" href="dir/index.html">
+    Direttore
+</a>
+
+<a id="tre" class="quadrante" href="nextgen/index.html">
+    Coro
+</a>
+
+<a id="quattro" class="quadrante" href="musicisti/index.html">
+    Musicisti
+</a>
+
+</body>
+</html>
