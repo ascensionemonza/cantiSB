@@ -102,6 +102,19 @@ body {
     color: white;
 }
 
+.pillola.spartito-assente {
+    background-color: white;
+    color: #0000AA;
+    border: 1px solid #0000AA;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pillola.spartito-assente:hover {
+    background-color: white;
+    color: #0000AA;
+}
+
 </style>
 
 </head>
@@ -144,6 +157,59 @@ const n =
 caricaCanto(n);
 
 caricaVoci(n);
+
+controllaDisponibilitaSpartito(n);
+
+async function controllaDisponibilitaSpartito() {
+
+    const btnSpartito =
+        document.getElementById(
+            "btnSpartito"
+        );
+
+    try {
+
+        const risposta =
+            await fetch(
+                "../../musicisti/elenco.json"
+            );
+
+        const elenco =
+            await risposta.json();
+
+        const presente =
+            elenco.spartiti.some(
+                x =>
+                    x.id ===
+                    window.idCantoCorrente
+            );
+
+        if (!presente) {
+
+            btnSpartito.classList.add(
+                "spartito-assente"
+            );
+
+            btnSpartito.disabled = true;
+
+        } else {
+
+            btnSpartito.classList.remove(
+                "spartito-assente"
+            );
+
+            btnSpartito.disabled = false;
+
+        }
+
+    }
+    catch (errore) {
+
+        console.error(errore);
+
+    }
+
+}
 
 function caricaVoci(idCanto) {
 
