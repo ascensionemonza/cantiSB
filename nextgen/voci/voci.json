@@ -124,5 +124,19 @@
 { "id": "A13", "voce": "contralti", "titolo": "audio/Jesu rex admirabilis - contralti.m4a.mp4" },
 { "id": "A13", "voce": "uomini", "titolo": "audio/Jesu rex admirabilis - uomini.m4a.mp4" },
 { "id": "A13", "voce": "soprani e uomini", "titolo": "audio/Jesu rex admirabilis - soprani e uomini.m4a.mp4" },
-{ "id": "A13", "voce": "contralti e uomini", "titolo": "audio/Jesu rex admirabilis - uomini e contralti.m4a.mp4" }
+{ "id": "A13", "voce": "contralti e uomini", "titolo": "audio/Jesu rex admirabilis - uomini e contralti.m4a.mp4" },
+{ "id": "A15", "voce": "1a parte strofa", "titolo": "audio/L'alba di un giorno diverso - 1ma parte strofa.m4a" },
+{ "id": "A15", "voce": "2a parte strofa", "titolo": "audio/L'alba di un giorno diverso - 2nda parte strofa.m4a" },
+{ "id": "A15", "voce": "uomini (rit.)", "titolo": "audio/L'alba di un giorno diverso - uomini - ritornello.m4a" },
+{ "id": "A15", "voce": "contralti (rit.)", "titolo": "audio/L'alba di un giorno diverso - contralti - ritornello.m4a" },
+{ "id": "A15", "voce": "soprani (rit.)", "titolo": "audio/L'alba di un giorno diverso - soprani - ritornello.m4a" },
+{ "id": "268", "voce": "contralti (strofa)", "titolo": "audio/Un tesoro in vasi di creta - strofa - contralti.m4a"},
+{ "id": "268", "voce": "contralti (rit.)", "titolo": "audio/Un tesoro in vasi di creta - ritornello - contralti.m4a"},
+{ "id": "A11", "voce": "contralti (strofa)", "titolo": "audio/Laudato sii - contralti - strofa.m4a"},
+{ "id": "A11", "voce": "contralti (rit.)", "titolo": "audio/Laudato sii - contralti - ritornello.m4a"},
+{ "id": "A11", "voce": "tenori (strofa)", "titolo": "audio/Laudato sii strofa tenori.m4a"},
+{ "id": "A11", "voce": "tenori (rit.)", "titolo": "audio/Laudato sii ritornello tenori.m4a"},
+{ "id": "A11", "voce": "bassi (strofa)", "titolo": "audio/Laudato sii strofa bassi.m4a"},
+{ "id": "A11", "voce": "bassi (rit.)", "titolo": "audio/Laudato sii ritornello bassi.m4a"}
+
 ]}
